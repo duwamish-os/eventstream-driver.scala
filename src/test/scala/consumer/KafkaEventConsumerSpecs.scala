@@ -14,8 +14,11 @@ import producer.{BaseEvent, KafkaEventPublisher}
 
 class KafkaEventConsumer[TestEvent] extends AbstractKafkaEventConsumer {
 
+  addConfiguration("group.id", "consumer_group_test")
+      .subscribeEvents(List("TestEvent"))
+
   override def consume(eventRecord: ConsumerRecord[String, String]): Unit = {
-    println(eventRecord.value())
+    println(s"Event = ${eventRecord.value()}")
   }
 }
 
@@ -38,8 +41,7 @@ class KafkaEventConsumerSpecs extends FunSuite with EmbeddedKafka {
 
       val e = consumeFirstMessageFrom("TestEvent")
 
-      val kafkaConsumer = new KafkaEventConsumer
-      kafkaConsumer.subscribeEvents(List("TestEvent"))
+      val kafkaConsumer = new KafkaEventConsumer()
 
       kafkaConsumer.consumeAll()
 

@@ -12,10 +12,8 @@ import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord, RecordM
 
 class KafkaEventPublisher extends EventProducer {
 
-  val config = new Properties() {{
-    put("bootstrap.servers", "localhost:9092") //streaming.config
-    put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
-    put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
+  val config = new Properties(){{
+    load(this.getClass.getResourceAsStream("/producer.properties"))
   }}
 
   var producer = new KafkaProducer[String, String](config)
