@@ -1,16 +1,16 @@
-package producer
+package producer.kafka
 
-import java.util.Properties
-import java.util.concurrent
+import java.util.{Properties, concurrent}
 
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord, RecordMetadata}
+import producer.{AbstractEvent, BaseEvent, EventPublisher}
 
 /**
   * Created by prayagupd
   * on 1/14/17.
   */
 
-class KafkaEventPublisher extends EventProducer {
+class KafkaEventPublisher extends EventPublisher {
 
   val config = new Properties(){{
     load(this.getClass.getResourceAsStream("/producer.properties"))

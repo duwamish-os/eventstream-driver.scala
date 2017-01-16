@@ -15,6 +15,6 @@ trait BaseEvent {
 
 case class AbstractEvent(eventOffset: Long, hashValue: Long, created: Date) extends BaseEvent
 
-trait EventProducer {
+trait EventPublisher {
   def publish(event: BaseEvent) : BaseEvent
 }

@@ -1,4 +1,4 @@
-package producer
+package producer.kafka
 
 import java.util.Date
 import java.util.concurrent.{Future, TimeUnit}
@@ -7,6 +7,7 @@ import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord, RecordM
 import org.apache.kafka.common.TopicPartition
 import org.mockito.Mockito
 import org.scalatest.FunSuite
+import producer.BaseEvent
 
 /**
   * Created by prayagupd
@@ -17,11 +18,11 @@ class KafkaPublisherSpecs extends FunSuite {
   val kafkaPublisher = new KafkaEventPublisher
   kafkaPublisher.producer = Mockito.mock(classOf[KafkaProducer[String, String]])
 
-  case class TestEvent(eventOffset: String, hashValue: Long, created: Date) extends BaseEvent
+  case class TestEvent(eventOffset: Long, hashValue: Long, created: Date) extends BaseEvent
 
 
   test("produces a record and returns event with checksum") {
-    val event = new TestEvent("001", 12l, new Date())
+    val event = new TestEvent(1l, 12l, new Date())
 
     val mockMetadata = new Future[RecordMetadata] {
       override def isCancelled: Boolean = false

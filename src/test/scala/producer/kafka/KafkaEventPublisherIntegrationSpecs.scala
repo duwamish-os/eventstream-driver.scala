@@ -1,15 +1,16 @@
-package producer
+package producer.kafka
 
 import java.util
 import java.util.{Date, Properties}
 
 import kafka.admin.AdminUtils
-import org.scalatest.FunSuite
 import kafka.utils.ZkUtils
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.I0Itec.zkclient.{ZkClient, ZkConnection}
-import org.apache.kafka.clients.consumer.{ConsumerRecord, ConsumerRecords, KafkaConsumer}
-import org.apache.kafka.common.serialization.{StringDeserializer, StringSerializer}
+import org.apache.kafka.clients.consumer.{ConsumerRecords, KafkaConsumer}
+import org.apache.kafka.common.serialization.StringDeserializer
+import org.scalatest.FunSuite
+import producer.BaseEvent
 
 import scala.collection.JavaConverters._
 

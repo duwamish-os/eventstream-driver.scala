@@ -6,7 +6,8 @@ import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.scalatest.FunSuite
-import producer.{BaseEvent, KafkaEventPublisher}
+import producer.BaseEvent
+import producer.kafka.KafkaEventPublisher
 
 /**
   * Created by prayagupd on 1/14/17.
