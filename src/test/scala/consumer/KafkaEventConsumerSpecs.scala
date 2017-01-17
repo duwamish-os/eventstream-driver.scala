@@ -1,52 +1,79 @@
 package consumer
 
-import java.util.Date
+import java.util
+import java.util.{Collections, Date, Properties}
 
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
-import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.clients.consumer.{ConsumerRecord, KafkaConsumer}
+import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 import org.apache.kafka.common.serialization.StringDeserializer
-import org.scalatest.FunSuite
+import org.scalatest.{BeforeAndAfterEach, FunSuite}
 import producer.BaseEvent
 import producer.kafka.KafkaEventPublisher
+
+import scala.collection.JavaConverters._
 
 /**
   * Created by prayagupd on 1/14/17.
   */
 
-class KafkaEventConsumer[TestEvent] extends AbstractKafkaEventConsumer {
+class TestEventKafkaEventConsumer[TestEvent] extends AbstractKafkaEventConsumer {
 
   addConfiguration("group.id", "consumer_group_test")
-      .subscribeEvents(List("TestEvent"))
+    .subscribeEvents(List("TestEvent"))
 
-  override def consume(eventRecord: ConsumerRecord[String, String]): Unit = {
+  override def consumeEvent(eventRecord: ConsumerRecord[String, String]): Unit = {
     println(s"Event = ${eventRecord.value()}")
   }
 }
 
-class KafkaEventConsumerSpecs extends FunSuite with EmbeddedKafka {
+class KafkaEventConsumerSpecs extends FunSuite with BeforeAndAfterEach {
 
-  implicit val config = EmbeddedKafkaConfig(kafkaPort = 9092, zooKeeperPort = 2181)
-  implicit val deserialiser = new StringDeserializer
+  implicit val streamingConfig = EmbeddedKafkaConfig(kafkaPort = 9092, zooKeeperPort = 2181)
 
-  case class TestEvent(eventOffset: Long, hashValue: Long, created: Date, testField : String) extends BaseEvent
+  case class TestEvent(eventOffset: Long, hashValue: Long, created: Date, testField: String) extends BaseEvent
+
+  override protected def beforeEach(): Unit = {
+    EmbeddedKafka.start()
+  }
+
+  override protected def afterEach(): Unit = {
+    EmbeddedKafka.stop()
+  }
 
   test("given an event in the event-store, consumes an event") {
 
-    withRunningKafka {
-
-      val producer = new KafkaEventPublisher
-
-      val persistedEvent = producer.publish(TestEvent(0l, 0l, new Date(), "data"))
-      assert(persistedEvent.eventOffset == 0)
-      assert(persistedEvent.hashValue != 0)
-
-      val e = consumeFirstMessageFrom("TestEvent")
-
-      val kafkaConsumer = new KafkaEventConsumer()
-
-      kafkaConsumer.consumeAll()
-
-      assert(1 == 1)
+    val event = TestEvent(0l, 0l, new Date(), "data")
+    val config = new Properties() {
+      {
+        load(this.getClass.getResourceAsStream("/producer.properties"))
+      }
     }
+    val producer = new KafkaProducer[String, String](config)
+
+    val persistedEvent = producer.send(new ProducerRecord(event.getClass.getSimpleName, event.toString))
+
+    assert(persistedEvent.get().offset() == 0)
+    assert(persistedEvent.get().checksum() != 0)
+
+    val consumerConfig = new Properties() {
+      {
+        put("group.id", "consumers_testEventsGroup")
+        put("client.id", "testEventConsumer")
+        put("auto.offset.reset", "earliest")
+      }
+    }
+
+    assert(consumerConfig.getProperty("group.id") == "consumers_testEventsGroup")
+
+    val kafkaConsumer = new TestEventKafkaEventConsumer[TestEvent].addConfiguration(consumerConfig)
+
+    //assert(kafkaConsumer.listTopics().asScala.map(_._1).toList == List("TestEvent"))
+
+    kafkaConsumer.subscribeEvents(List("TestEvent"))
+
+    //assert(kafkaConsumer.partitionsFor("TestEvent").asScala.map(_.partition()).toList == List(0))
+
+    val events = kafkaConsumer.consumeAll()
   }
 }

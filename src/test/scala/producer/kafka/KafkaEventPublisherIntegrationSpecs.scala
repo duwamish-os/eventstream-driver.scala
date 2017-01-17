@@ -9,7 +9,7 @@ import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.I0Itec.zkclient.{ZkClient, ZkConnection}
 import org.apache.kafka.clients.consumer.{ConsumerRecords, KafkaConsumer}
 import org.apache.kafka.common.serialization.StringDeserializer
-import org.scalatest.FunSuite
+import org.scalatest.{BeforeAndAfterEach, FunSuite}
 import producer.BaseEvent
 
 import scala.collection.JavaConverters._
@@ -19,17 +19,19 @@ import scala.collection.JavaConverters._
   * on 1/14/17.
   */
 
-class KafkaEventPublisherIntegrationSpecs extends FunSuite {
+class KafkaEventPublisherIntegrationSpecs extends FunSuite with BeforeAndAfterEach {
 
   case class TestEvent(eventOffset: Long, hashValue: Long, created: Date) extends BaseEvent
 
+  implicit val streamingConfig = EmbeddedKafkaConfig(kafkaPort = 9092, zooKeeperPort = 2181)
+
   val kafkaPublisher = new KafkaEventPublisher
 
+  override protected def beforeEach(): Unit = EmbeddedKafka.start()
+
+  override protected def afterEach(): Unit = EmbeddedKafka.stop()
+
   test("produces a record to kafka store") {
-
-    implicit val streamingConfig = EmbeddedKafkaConfig(kafkaPort = 9092, zooKeeperPort = 2181)
-
-    EmbeddedKafka.start()
 
     val event = TestEvent(0l, 0l, new Date())
 
@@ -37,16 +39,17 @@ class KafkaEventPublisherIntegrationSpecs extends FunSuite {
     assert(persistedEvent.eventOffset == 0)
     assert(persistedEvent.hashValue != 0)
 
-    val config = new Properties() {
+    val consumerConfig = new Properties() {
       {
         put("bootstrap.servers", "localhost:9092") //streaming.config
         put("group.id", "consumer_group_test")
+        put("auto.offset.reset", "earliest")
         put("key.deserializer", classOf[StringDeserializer].getName)
         put("value.deserializer", classOf[StringDeserializer].getName)
       }
     }
 
-    val kafkaConsumer = new KafkaConsumer[String, String](config)
+    val kafkaConsumer = new KafkaConsumer[String, String](consumerConfig)
 
     val topics = kafkaConsumer.listTopics().asScala
 
@@ -65,15 +68,9 @@ class KafkaEventPublisherIntegrationSpecs extends FunSuite {
     println(events.partitions().size())
 
     assert(events.count() == 1)
-
-    EmbeddedKafka.stop()
   }
 
   test("produces multiple records to kafka store") {
-
-    implicit val config = EmbeddedKafkaConfig(kafkaPort = 9092, zooKeeperPort = 2181)
-
-    EmbeddedKafka.start()
 
     val event = TestEvent(0l, 0l, new Date())
 
@@ -84,7 +81,5 @@ class KafkaEventPublisherIntegrationSpecs extends FunSuite {
     val persistedEvent2 = kafkaPublisher.publish(TestEvent(0l, 0l, new Date()))
     assert(persistedEvent2.eventOffset == 1)
     assert((persistedEvent2.hashValue + "").length > 0)
-
-    EmbeddedKafka.stop()
   }
 }

@@ -4,6 +4,8 @@ version := "1.0"
 
 scalaVersion := "2.11.8"
 
+parallelExecution in Test := false
+
 libraryDependencies ++= {
   Seq(
     "com.typesafe.akka" %% "akka-http-experimental" % "1.0",

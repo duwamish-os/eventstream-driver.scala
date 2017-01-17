@@ -9,7 +9,8 @@ import producer.BaseEvent
   */
 
 trait EventConsumer[E >: BaseEvent] {
-  def consume(consumerRecord: ConsumerRecord[String, String])
+  def consumeEvent(consumerRecord: ConsumerRecord[String, String])
   def consumeAll()
   def subscribeEvents(eventTypes: List[String]) : EventConsumer[E]
+  def listEventTypes() : List[String]
 }

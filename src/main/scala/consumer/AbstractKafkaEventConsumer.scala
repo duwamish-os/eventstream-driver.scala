@@ -20,12 +20,12 @@ abstract class AbstractKafkaEventConsumer[E >: BaseEvent] extends EventConsumer[
 
   var consumer : KafkaConsumer[String, String] = null
 
-  override def consume(eventRecord: ConsumerRecord[String, String])
+  override def consumeEvent(eventRecord: ConsumerRecord[String, String])
 
   override def consumeAll() = {
     val events = consumer.poll(1000)
     for (e <- events) {
-      consume(e)
+      consumeEvent(e)
     }
   }
 
@@ -38,5 +38,14 @@ abstract class AbstractKafkaEventConsumer[E >: BaseEvent] extends EventConsumer[
   def addConfiguration(key: String, value: String): EventConsumer[E] = {
     config.put(key, value)
     this
+  }
+
+  def addConfiguration(properties: Properties): EventConsumer[E] = {
+    config.putAll(properties)
+    this
+  }
+
+  override def listEventTypes(): List[String] = {
+    consumer.listTopics().map(_._1).toList
   }
 }
