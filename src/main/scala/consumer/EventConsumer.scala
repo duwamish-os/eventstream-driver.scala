@@ -12,11 +12,11 @@ import producer.{AbstractEvent, BaseEvent}
   */
 
 trait EventConsumer[E <: BaseEvent] {
-  def setEventType(eventType: Class[E]) : EventConsumer[E]
   def setEventHandler(eventHandler: EventHandler[E]): EventConsumer[E]
-  def subscribeEvents(eventTypes: List[String]) : EventConsumer[E]
+  def subscribeEvents(eventTypes: Class[E]) : EventConsumer[E]
 
   def listEventTypesInStream() : List[String]
   def consumeAll()
-  def getConfiguration() : Properties
+  def getConfiguration: Properties
+  def getConsumerPosition: Long
 }

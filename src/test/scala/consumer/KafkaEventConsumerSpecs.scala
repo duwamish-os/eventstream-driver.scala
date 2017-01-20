@@ -15,7 +15,9 @@ import producer.BaseEvent
 class TestEventHandler extends EventHandler[TestHappenedEvent] {
 
   override def onEvent(event: TestHappenedEvent): Unit = {
-    println(s"event = ${event.testField}")
+
+    Thread.sleep(10000)
+    println(s"event = ${event} => ${new Date()}")
   }
 }
 
@@ -29,12 +31,11 @@ class KafkaEventConsumerSpecs extends FunSuite with BeforeAndAfterEach {
         put("client.id", "testKafkaEventConsumer")
         put("auto.offset.reset", "earliest")
       }})
-      .subscribeEvents(List(classOf[TestHappenedEvent].getSimpleName))
+      .subscribeEvents(classOf[TestHappenedEvent])
       .setEventHandler(new TestEventHandler)
-      .setEventType(classOf[TestHappenedEvent])
 
-    assert(getConfiguration().getProperty("group.id") == "consumers_testEventsGroup")
-    assert(getConfiguration().getProperty("client.id") == "testKafkaEventConsumer")
+    assert(getConfiguration.getProperty("group.id") == "consumers_testEventsGroup")
+    assert(getConfiguration.getProperty("client.id") == "testKafkaEventConsumer")
   }
 
   override protected def beforeEach(): Unit = {
@@ -61,12 +62,38 @@ class KafkaEventConsumerSpecs extends FunSuite with BeforeAndAfterEach {
     assert(persistedEvent.get().offset() == 0)
     assert(persistedEvent.get().checksum() != 0)
 
-    //val kafkaConsumer = new TestEventKafkaEventConsumer
-
     assert(kafkaConsumer.listEventTypesInStream() == List(classOf[TestHappenedEvent].getSimpleName))
 
-    //assert(kafkaConsumer.partitionsFor("TestEvent").asScala.map(_.partition()).toList == List(0))
-
     val events = kafkaConsumer.consumeAll()
+    assert(kafkaConsumer.getConsumerPosition == 1)
+  }
+
+  test("given 2 events in the event-store, consumes events and updates the offset") {
+
+    val event = TestHappenedEvent(0l, 0l, classOf[TestHappenedEvent].getSimpleName, new Date(), "{data1}")
+    kafkaConsumer.addConfiguration("auto.offset.reset", "latest")
+    kafkaConsumer.consumeAll()
+
+    val config = new Properties() {{
+        load(this.getClass.getResourceAsStream("/producer.properties"))
+     }}
+    val producer = new KafkaProducer[String, String](config)
+
+    val persistedEvent = producer.send(new ProducerRecord(event.getClass.getSimpleName, event.toString))
+    assert(persistedEvent.get().offset() == 0)
+    assert(persistedEvent.get().checksum() != 0)
+
+    val persistedEvent2 = producer.send(new ProducerRecord(event.getClass.getSimpleName,
+      TestHappenedEvent(0l, 0l, classOf[TestHappenedEvent].getSimpleName, new Date(), "{data2}").toString))
+    assert(persistedEvent2.get().offset() == 1)
+    assert(persistedEvent2.get().checksum() != 0)
+
+    assert(kafkaConsumer.listEventTypesInStream() == List(classOf[TestHappenedEvent].getSimpleName, "__consumer_offsets"))
+
+    val events1 = kafkaConsumer.consumeAll()
+    assert(kafkaConsumer.getConsumerPosition == 1)
+
+    val events2 = kafkaConsumer.consumeAll()
+    assert(kafkaConsumer.getConsumerPosition == 2)
   }
 }
