@@ -1,16 +1,14 @@
-package consumer
+package consumer.kafka
 
 import java.lang.reflect.Method
-import java.util
-import java.util.{Collections, Date, Properties}
+import java.util.{Collections, Properties}
 
-import offset.{Offset, PartitionOffset}
+import consumer.EventConsumer
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.TopicPartition
 import producer.BaseEvent
 
 import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
 
 /**
   * Created by prayagupd
@@ -24,7 +22,7 @@ trait EventHandler[E <: BaseEvent] {
 abstract class AbstractKafkaEventConsumer[E <: BaseEvent] extends EventConsumer[E] {
 
   val eventTypePartition: Int = 0
-  var eventType: Class[E] = _
+  var subscribedEventType: Class[E] = _
 
   var eventHandler: EventHandler[E] = _
 
@@ -45,16 +43,16 @@ abstract class AbstractKafkaEventConsumer[E <: BaseEvent] extends EventConsumer[
       println(getConsumerPosition)
       println("=============================================================")
 
-      val method: Method = eventType.getMethod("fromPayload", classOf[String])
-      val s = method.invoke(eventType.newInstance(), eventRecord.value())
+      val method: Method = subscribedEventType.getMethod("fromPayload", classOf[String])
+      val s = method.invoke(subscribedEventType.newInstance(), eventRecord.value())
       eventHandler.onEvent(s.asInstanceOf[E])
     }
   }
 
   override def subscribeEvents(eventTypes: Class[E]): EventConsumer[E] = {
-    this.eventType = eventTypes
+    this.subscribedEventType = eventTypes
     consumer = new KafkaConsumer[String, String](config)
-    consumer.subscribe(Collections.singletonList(eventType.getSimpleName))
+    consumer.subscribe(Collections.singletonList(subscribedEventType.getSimpleName))
     this
   }
 
@@ -80,6 +78,6 @@ abstract class AbstractKafkaEventConsumer[E <: BaseEvent] extends EventConsumer[
   override def getConfiguration: Properties = config
 
   override def getConsumerPosition: Long = {
-    consumer.position(new TopicPartition(eventType.getSimpleName, eventTypePartition))
+    consumer.position(new TopicPartition(subscribedEventType.getSimpleName, eventTypePartition))
   }
 }

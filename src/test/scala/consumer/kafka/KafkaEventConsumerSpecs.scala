@@ -1,11 +1,11 @@
-package consumer
+package consumer.kafka
 
 import java.util.{Date, Properties}
 
+import TestHappenedEvent
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
-import producer.BaseEvent
 
 /**
   * Created by prayagupd

@@ -1,4 +1,4 @@
-package consumer
+package consumer.kafka
 
 import java.util.Date
 

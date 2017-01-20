@@ -2,6 +2,7 @@ package consumer
 
 import java.util.Properties
 
+import consumer.kafka.EventHandler
 import offset.PartitionOffset
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import producer.{AbstractEvent, BaseEvent}
