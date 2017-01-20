@@ -21,7 +21,9 @@ import scala.collection.JavaConverters._
 
 class KafkaEventPublisherIntegrationSpecs extends FunSuite with BeforeAndAfterEach {
 
-  case class TestEvent(eventOffset: Long, hashValue: Long, created: Date) extends BaseEvent
+  case class ItemOrderedEvent(eventOffset: Long, hashValue: Long, eventType: String, created: Date) extends BaseEvent {
+    override def fromPayload(payload: String): BaseEvent = {null}
+  }
 
   implicit val streamingConfig = EmbeddedKafkaConfig(kafkaPort = 9092, zooKeeperPort = 2181)
 
@@ -33,7 +35,7 @@ class KafkaEventPublisherIntegrationSpecs extends FunSuite with BeforeAndAfterEa
 
   test("produces a record to kafka store") {
 
-    val event = TestEvent(0l, 0l, new Date())
+    val event = ItemOrderedEvent(0l, 0l, classOf[ItemOrderedEvent].getSimpleName, new Date())
 
     val persistedEvent = kafkaPublisher.publish(event)
     assert(persistedEvent.eventOffset == 0)
@@ -53,12 +55,12 @@ class KafkaEventPublisherIntegrationSpecs extends FunSuite with BeforeAndAfterEa
 
     val topics = kafkaConsumer.listTopics().asScala
 
-    assert(topics.map(_._1) == List("TestEvent"))
+    assert(topics.map(_._1) == List(classOf[ItemOrderedEvent].getSimpleName))
 
-    kafkaConsumer.subscribe(util.Arrays.asList("TestEvent"))
+    kafkaConsumer.subscribe(util.Arrays.asList(classOf[ItemOrderedEvent].getSimpleName))
 
     val topic = AdminUtils.topicExists(new ZkUtils(new ZkClient("localhost:2181", 10000, 15000),
-      new ZkConnection("localhost:2181"), false), "TestEvent")
+      new ZkConnection("localhost:2181"), false), classOf[ItemOrderedEvent].getSimpleName)
 
     assert(topic)
 
@@ -72,13 +74,13 @@ class KafkaEventPublisherIntegrationSpecs extends FunSuite with BeforeAndAfterEa
 
   test("produces multiple records to kafka store") {
 
-    val event = TestEvent(0l, 0l, new Date())
+    val event = ItemOrderedEvent(0l, 0l, classOf[ItemOrderedEvent].getSimpleName, new Date())
 
     val persistedEvent = kafkaPublisher.publish(event)
     assert(persistedEvent.eventOffset == 0)
     assert((persistedEvent.hashValue + "").length > 0)
 
-    val persistedEvent2 = kafkaPublisher.publish(TestEvent(0l, 0l, new Date()))
+    val persistedEvent2 = kafkaPublisher.publish(ItemOrderedEvent(0l, 0l, classOf[ItemOrderedEvent].getSimpleName, new Date()))
     assert(persistedEvent2.eventOffset == 1)
     assert((persistedEvent2.hashValue + "").length > 0)
   }

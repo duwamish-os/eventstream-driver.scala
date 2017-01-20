@@ -1,29 +1,21 @@
 package consumer
 
-import java.util
-import java.util.{Collections, Date, Properties}
+import java.util.{Date, Properties}
 
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
-import org.apache.kafka.clients.consumer.{ConsumerRecord, KafkaConsumer}
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
-import org.apache.kafka.common.serialization.StringDeserializer
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
 import producer.BaseEvent
-import producer.kafka.KafkaEventPublisher
-
-import scala.collection.JavaConverters._
 
 /**
-  * Created by prayagupd on 1/14/17.
+  * Created by prayagupd
+  * on 1/14/17.
   */
 
-class TestEventKafkaEventConsumer[TestEvent] extends AbstractKafkaEventConsumer {
+class TestEventHandler extends EventHandler[TestHappenedEvent] {
 
-  addConfiguration("group.id", "consumer_group_test")
-    .subscribeEvents(List("TestEvent"))
-
-  override def consumeEvent(eventRecord: ConsumerRecord[String, String]): Unit = {
-    println(s"Event = ${eventRecord.value()}")
+  override def onEvent(event: TestHappenedEvent): Unit = {
+    println(s"event = ${event.testField}")
   }
 }
 
@@ -31,7 +23,19 @@ class KafkaEventConsumerSpecs extends FunSuite with BeforeAndAfterEach {
 
   implicit val streamingConfig = EmbeddedKafkaConfig(kafkaPort = 9092, zooKeeperPort = 2181)
 
-  case class TestEvent(eventOffset: Long, hashValue: Long, created: Date, testField: String) extends BaseEvent
+  val kafkaConsumer = new AbstractKafkaEventConsumer[TestHappenedEvent] {
+    addConfiguration(new Properties() {{
+        put("group.id", "consumers_testEventsGroup")
+        put("client.id", "testKafkaEventConsumer")
+        put("auto.offset.reset", "earliest")
+      }})
+      .subscribeEvents(List(classOf[TestHappenedEvent].getSimpleName))
+      .setEventHandler(new TestEventHandler)
+      .setEventType(classOf[TestHappenedEvent])
+
+    assert(getConfiguration().getProperty("group.id") == "consumers_testEventsGroup")
+    assert(getConfiguration().getProperty("client.id") == "testKafkaEventConsumer")
+  }
 
   override protected def beforeEach(): Unit = {
     EmbeddedKafka.start()
@@ -43,7 +47,8 @@ class KafkaEventConsumerSpecs extends FunSuite with BeforeAndAfterEach {
 
   test("given an event in the event-store, consumes an event") {
 
-    val event = TestEvent(0l, 0l, new Date(), "data")
+    val event = TestHappenedEvent(0l, 0l, classOf[TestHappenedEvent].getSimpleName, new Date(), "data")
+
     val config = new Properties() {
       {
         load(this.getClass.getResourceAsStream("/producer.properties"))
@@ -56,21 +61,9 @@ class KafkaEventConsumerSpecs extends FunSuite with BeforeAndAfterEach {
     assert(persistedEvent.get().offset() == 0)
     assert(persistedEvent.get().checksum() != 0)
 
-    val consumerConfig = new Properties() {
-      {
-        put("group.id", "consumers_testEventsGroup")
-        put("client.id", "testEventConsumer")
-        put("auto.offset.reset", "earliest")
-      }
-    }
+    //val kafkaConsumer = new TestEventKafkaEventConsumer
 
-    assert(consumerConfig.getProperty("group.id") == "consumers_testEventsGroup")
-
-    val kafkaConsumer = new TestEventKafkaEventConsumer[TestEvent].addConfiguration(consumerConfig)
-
-    //assert(kafkaConsumer.listTopics().asScala.map(_._1).toList == List("TestEvent"))
-
-    kafkaConsumer.subscribeEvents(List("TestEvent"))
+    assert(kafkaConsumer.listEventTypesInStream() == List(classOf[TestHappenedEvent].getSimpleName))
 
     //assert(kafkaConsumer.partitionsFor("TestEvent").asScala.map(_.partition()).toList == List(0))
 

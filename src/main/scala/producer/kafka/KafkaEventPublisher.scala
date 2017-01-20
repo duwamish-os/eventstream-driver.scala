@@ -1,6 +1,6 @@
 package producer.kafka
 
-import java.util.{Properties, concurrent}
+import java.util.{Date, Properties, concurrent}
 
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord, RecordMetadata}
 import producer.{AbstractEvent, BaseEvent, EventPublisher}
@@ -19,8 +19,22 @@ class KafkaEventPublisher extends EventPublisher {
   var producer = new KafkaProducer[String, String](config)
 
   override def publish(event: BaseEvent): BaseEvent = {
-    val metadata : concurrent.Future[RecordMetadata] =
+    val publishedMetadata : concurrent.Future[RecordMetadata] =
       producer.send(new ProducerRecord[String, String](event.getClass.getSimpleName, event.toString))
-    AbstractEvent(metadata.get().offset(), metadata.get().checksum(), event.created)
+
+    new BaseEvent {
+      override def created: Date = new Date(publishedMetadata.get().timestamp())
+
+      override def hashValue: Long = publishedMetadata.get().checksum()
+
+      override def eventOffset: Long = publishedMetadata.get().offset()
+
+      override def eventType: String = publishedMetadata.get().topic()
+
+      override def fromPayload(payload: String): BaseEvent = {
+        null
+      }
+    }.asInstanceOf[event.type]
+
   }
 }

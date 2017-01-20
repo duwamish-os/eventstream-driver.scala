@@ -9,7 +9,9 @@ import org.scalatest.FunSuite
   * Created by prayagupd
   * on 1/15/17.
   */
-case class TestEvent(eventOffset: Long, hashValue: Long, created: Date) extends BaseEvent
+case class ItemSoldEvent(eventOffset: Long, hashValue: Long, eventType: String, created: Date) extends BaseEvent {
+  override def fromPayload(payload: String): BaseEvent = null
+}
 
 class GenericEventPublisherIntegrationSpecs extends FunSuite {
 
@@ -21,12 +23,12 @@ class GenericEventPublisherIntegrationSpecs extends FunSuite {
 
     EmbeddedKafka.start()
 
-    val event = TestEvent(0, 0, new Date())
+    val event = ItemSoldEvent(0, 0, classOf[ItemSoldEvent].getSimpleName, new Date())
 
-    val persistedEvent1 = genericEventPublisher.publish(TestEvent(0, 0, new Date()))
+    val persistedEvent1 = genericEventPublisher.publish(ItemSoldEvent(0, 0, classOf[ItemSoldEvent].getSimpleName, new Date()))
     assert(persistedEvent1.eventOffset == 0)
 
-    val persistedEvent2 = genericEventPublisher.publish(TestEvent(1, 2, new Date()))
+    val persistedEvent2 = genericEventPublisher.publish(ItemSoldEvent(1, 2, classOf[ItemSoldEvent].getSimpleName, new Date()))
     assert(persistedEvent2.eventOffset == 1)
 
     EmbeddedKafka.stop()
