@@ -14,6 +14,8 @@ libraryDependencies ++= {
     "org.apache.kafka" % "kafka-clients" % "0.10.1.1",
     "com.typesafe" % "config" % "1.3.1",
     "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.5",
+    "com.fasterxml.jackson.core" % "jackson-databind" % "2.8.6",
+    "com.fasterxml.jackson.module" % "jackson-module-scala_2.11" % "2.8.4",
 
     "com.typesafe.akka" %%"akka-http-testkit-experimental" % "1.0",
     "org.scalatest" %% "scalatest" % "3.0.0",

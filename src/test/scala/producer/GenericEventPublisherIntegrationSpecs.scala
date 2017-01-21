@@ -1,7 +1,11 @@
 package producer
 
+import java.io.ByteArrayOutputStream
 import java.util.Date
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.scalatest.FunSuite
 
@@ -9,8 +13,17 @@ import org.scalatest.FunSuite
   * Created by prayagupd
   * on 1/15/17.
   */
-case class ItemSoldEvent(eventOffset: Long, hashValue: Long, eventType: String, created: Date) extends BaseEvent {
+case class ItemSoldEvent(eventOffset: Long, hashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
   override def fromPayload(payload: String): BaseEvent = null
+
+  override def toJSON(): String = {
+    val objectMapper = new ObjectMapper() with ScalaObjectMapper
+    objectMapper.registerModule(DefaultScalaModule)
+
+    val stream = new ByteArrayOutputStream()
+    objectMapper.writeValue(stream, this)
+    stream.toString
+  }
 }
 
 class GenericEventPublisherIntegrationSpecs extends FunSuite {

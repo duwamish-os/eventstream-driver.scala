@@ -1,8 +1,13 @@
 package producer.kafka
 
+import java.io.ByteArrayOutputStream
 import java.util
 import java.util.{Date, Properties}
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import kafka.admin.AdminUtils
 import kafka.utils.ZkUtils
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
@@ -21,8 +26,20 @@ import scala.collection.JavaConverters._
 
 class KafkaEventPublisherIntegrationSpecs extends FunSuite with BeforeAndAfterEach {
 
-  case class ItemOrderedEvent(eventOffset: Long, hashValue: Long, eventType: String, created: Date) extends BaseEvent {
+
+  @JsonIgnoreProperties(Array("eventOffset", "hashValue"))
+  case class ItemOrderedEvent(eventOffset: Long, hashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
     override def fromPayload(payload: String): BaseEvent = {null}
+
+    override def toJSON(): String = {
+      val objectMapper = new ObjectMapper() with ScalaObjectMapper
+      objectMapper.registerModule(DefaultScalaModule)
+
+      val stream = new ByteArrayOutputStream()
+      objectMapper.writeValue(stream, this)
+      println(stream.toString)
+      stream.toString
+    }
   }
 
   implicit val streamingConfig = EmbeddedKafkaConfig(kafkaPort = 9092, zooKeeperPort = 2181)
@@ -35,7 +52,7 @@ class KafkaEventPublisherIntegrationSpecs extends FunSuite with BeforeAndAfterEa
 
   test("produces a record to kafka store") {
 
-    val event = ItemOrderedEvent(0l, 0l, classOf[ItemOrderedEvent].getSimpleName, new Date())
+    val event = ItemOrderedEvent(0l, 0l, classOf[ItemOrderedEvent].getSimpleName, new Date(2017, 10, 28))
 
     val persistedEvent = kafkaPublisher.publish(event)
     assert(persistedEvent.eventOffset == 0)
@@ -67,14 +84,15 @@ class KafkaEventPublisherIntegrationSpecs extends FunSuite with BeforeAndAfterEa
     var events: ConsumerRecords[String, String] = null
 
     events = kafkaConsumer.poll(1000)
-    println(events.partitions().size())
 
+    assert(events.asScala.map(_.value()).toList.head == "{\"eventType\":\"ItemOrderedEvent\",\"createdDate\":61470000000000}")
+    assert(events.partitions().size() == 1)
     assert(events.count() == 1)
   }
 
   test("produces multiple records to kafka store") {
 
-    val event = ItemOrderedEvent(0l, 0l, classOf[ItemOrderedEvent].getSimpleName, new Date())
+    val event = ItemOrderedEvent(0l, 0l, classOf[ItemOrderedEvent].getSimpleName, new Date(2017, 10, 28))
 
     val persistedEvent = kafkaPublisher.publish(event)
     assert(persistedEvent.eventOffset == 0)

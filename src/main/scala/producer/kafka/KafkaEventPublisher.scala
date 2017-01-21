@@ -23,7 +23,7 @@ class KafkaEventPublisher extends EventPublisher {
       producer.send(new ProducerRecord[String, String](event.getClass.getSimpleName, event.toString))
 
     new BaseEvent {
-      override def created: Date = new Date(publishedMetadata.get().timestamp())
+      override def createdDate: Date = new Date(publishedMetadata.get().timestamp())
 
       override def hashValue: Long = publishedMetadata.get().checksum()
 
@@ -32,6 +32,10 @@ class KafkaEventPublisher extends EventPublisher {
       override def eventType: String = publishedMetadata.get().topic()
 
       override def fromPayload(payload: String): BaseEvent = {
+        null
+      }
+
+      override def toJSON(): String = {
         null
       }
     }.asInstanceOf[event.type]

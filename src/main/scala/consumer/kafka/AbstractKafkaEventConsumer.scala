@@ -21,7 +21,7 @@ trait EventHandler[E <: BaseEvent] {
 
 abstract class AbstractKafkaEventConsumer[E <: BaseEvent] extends EventConsumer[E] {
 
-  val eventTypePartition: Int = 0
+  var eventTypePartition: Int = 0
   var subscribedEventType: Class[E] = _
 
   var eventHandler: EventHandler[E] = _
@@ -39,9 +39,9 @@ abstract class AbstractKafkaEventConsumer[E <: BaseEvent] extends EventConsumer[
 
     for (eventRecord <- events) {
 
-      println("offset =============================================================")
+      println("offset =============================================================|")
       println(getConsumerPosition)
-      println("=============================================================")
+      println("offset =============================================================|")
 
       val method: Method = subscribedEventType.getMethod("fromPayload", classOf[String])
       val s = method.invoke(subscribedEventType.newInstance(), eventRecord.value())
@@ -56,12 +56,17 @@ abstract class AbstractKafkaEventConsumer[E <: BaseEvent] extends EventConsumer[
     this
   }
 
-  def addConfiguration(key: String, value: String): EventConsumer[E] = {
+  override def subscribePartitions(partition: Int): EventConsumer[E] = {
+    this.eventTypePartition = partition
+    this
+  }
+
+  override def addConfiguration(key: String, value: String): EventConsumer[E] = {
     config.put(key, value)
     this
   }
 
-  def addConfiguration(properties: Properties): EventConsumer[E] = {
+  override def addConfiguration(properties: Properties): EventConsumer[E] = {
     config.putAll(properties)
     this
   }
