@@ -16,7 +16,7 @@ import offset.EventOffsetAndHashValue
 trait BaseEvent {
   def eventOffset: Long
 
-  def hashValue: Long
+  def eventHashValue: Long
 
   def eventType: String
 
@@ -33,7 +33,7 @@ trait BaseEvent {
   override def toString: String = toJSON()
 }
 
-case class AbstractEvent(eventOffset: Long, hashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
+case class AbstractEvent(eventOffset: Long, eventHashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
 
   override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = {
     AbstractEvent(0, 0, payload, new Date())

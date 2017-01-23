@@ -15,9 +15,9 @@ import producer.BaseEvent
   * on 1/19/17.
   */
 
-@JsonIgnoreProperties(Array("eventOffset", "hashValue"))
-case class TestHappenedEvent(eventOffset: Long, hashValue: Long, eventType: String,
-                             createdDate: Date, testField: String) extends BaseEvent {
+@JsonIgnoreProperties(Array("eventOffset", "eventHashValue"))
+case class TestHappenedEvent(eventOffset: Long, eventHashValue: Long, eventType: String,
+                             createdDate: Date, field1: String) extends BaseEvent {
 
   def this() {
     this(0, 0, "", new Date(), "")
@@ -29,7 +29,7 @@ case class TestHappenedEvent(eventOffset: Long, hashValue: Long, eventType: Stri
     mapper.registerModule(DefaultScalaModule)
 
     mapper.readValue(payload, classOf[TestHappenedEvent])
-      .copy(eventOffset = offset.offset, hashValue = offset.checksum)
+      .copy(eventOffset = offset.offset, eventHashValue = offset.checksum)
   }
 
   override def toJSON(): String = {

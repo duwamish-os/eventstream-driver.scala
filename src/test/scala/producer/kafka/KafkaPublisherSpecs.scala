@@ -19,14 +19,16 @@ class KafkaPublisherSpecs extends FunSuite {
   val kafkaPublisher = new KafkaEventPublisher
   kafkaPublisher.producer = Mockito.mock(classOf[KafkaProducer[String, String]])
 
-  case class InventoryMovedEvent(eventOffset: Long, hashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
+  case class InventoryMovedEvent(eventOffset: Long, eventHashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
     override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = {null}
 
-    override def toJSON(): String = ???
+    override def toJSON(): String = {
+      ""
+    }
   }
 
   test("produces a record and returns event with checksum") {
-    val event = new InventoryMovedEvent(1l, 12l, classOf[InventoryMovedEvent].getSimpleName, new Date())
+    val event = InventoryMovedEvent(1l, 12l, classOf[InventoryMovedEvent].getSimpleName, new Date())
 
     val mockMetadata = new Future[RecordMetadata] {
       override def isCancelled: Boolean = false
@@ -44,12 +46,13 @@ class KafkaPublisherSpecs extends FunSuite {
       override def isDone: Boolean = false
     }
 
-    Mockito.when(kafkaPublisher.producer.send(new ProducerRecord[String, String](event.getClass.getSimpleName, event.toString))) thenReturn mockMetadata
+    Mockito.when(kafkaPublisher.producer
+      .send(new ProducerRecord[String, String](event.getClass.getSimpleName, event.toString))) thenReturn mockMetadata
 
     val returndEvent = kafkaPublisher.publish(event)
 
     Mockito.verify(kafkaPublisher.producer).send(new ProducerRecord[String, String](event.getClass.getSimpleName, event.toString))
 
-    assert(returndEvent.hashValue == 100l)
+    assert(returndEvent.eventHashValue == 100l)
   }
 }

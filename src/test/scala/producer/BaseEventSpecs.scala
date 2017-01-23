@@ -25,7 +25,7 @@ class BaseEventSpecs extends FunSuite {
         {
           "eventType":"TestHappenedEvent",
           "createdDate":61470000000000,
-          "testField":"item is sold"
+          "field1":"item is sold"
         }
       """.stripMargin.parseJson)
   }
@@ -36,7 +36,7 @@ class BaseEventSpecs extends FunSuite {
         {
           "eventType":"TestHappenedEvent",
           "createdDate":61470000000000,
-          "testField":"item is sold"
+          "field1":"item is sold"
         }
       """.stripMargin.parseJson)
   }
@@ -46,16 +46,16 @@ class BaseEventSpecs extends FunSuite {
       """{
           "eventType":"TestHappenedEvent",
           "createdDate":61470000000000,
-          "testField":"item is sold"
+          "field1":"item is sold"
         }""".stripMargin
 
     val actual = new TestHappenedEvent().fromPayload(offset = EventOffsetAndHashValue(0, 10001), payload = payload)
       .asInstanceOf[TestHappenedEvent]
 
-    assert(actual.hashValue == 10001)
+    assert(actual.eventHashValue == 10001)
     assert(actual.eventType == classOf[TestHappenedEvent].getSimpleName)
     assert(actual.createdDate == new Date(2017, 10, 28))
-    assert(actual.testField == "item is sold")
+    assert(actual.field1 == "item is sold")
   }
 
   test("converts json payload with empty list elements to object") {
@@ -69,7 +69,7 @@ class BaseEventSpecs extends FunSuite {
     val actual = new TestEventWithList().fromPayload(payload = payload)
       .asInstanceOf[TestEventWithList]
 
-    assert(actual.hashValue == 0)
+    assert(actual.eventHashValue == 0)
     assert(actual.eventType == classOf[TestEventWithList].getSimpleName)
     assert(actual.createdDate == new Date(2017, 10, 28))
     assert(actual.someObjects == List.empty)
@@ -88,7 +88,7 @@ class BaseEventSpecs extends FunSuite {
     val actual = new TestEventWithList().fromPayload(payload = payload)
       .asInstanceOf[TestEventWithList]
 
-    assert(actual.hashValue == 0)
+    assert(actual.eventHashValue == 0)
     assert(actual.eventType == classOf[TestEventWithList].getSimpleName)
     assert(actual.createdDate == new Date(2017, 10, 28))
     assert(actual.someObjects == List(SomeObject(field1 = "value1", field2 = null)))
@@ -111,7 +111,7 @@ class BaseEventSpecs extends FunSuite {
     val actual = new TestEventWithList().fromPayload(payload = payload)
       .asInstanceOf[TestEventWithList]
 
-    assert(actual.hashValue == 0)
+    assert(actual.eventHashValue == 0)
     assert(actual.eventType == classOf[TestEventWithList].getSimpleName)
     assert(actual.createdDate == new Date(2017, 10, 28))
     assert(actual.someObjects == List(SomeObject(field1 = "value11", field2 = null),

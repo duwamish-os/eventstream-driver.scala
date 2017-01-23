@@ -15,7 +15,7 @@ class TestEventHandler extends EventHandler[TestHappenedEvent] {
 
   override def onEvent(event: TestHappenedEvent): Unit = {
 
-    Thread.sleep(10000)
+    Thread.sleep(3000)
     println(s"event = ${event} => ${new Date()}")
   }
 }

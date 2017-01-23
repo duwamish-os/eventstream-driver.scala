@@ -14,7 +14,7 @@ import org.scalatest.FunSuite
   * Created by prayagupd
   * on 1/15/17.
   */
-case class ItemSoldEvent(eventOffset: Long, hashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
+case class ItemSoldEvent(eventOffset: Long, eventHashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
   override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = null
 
   override def toJSON(): String = {

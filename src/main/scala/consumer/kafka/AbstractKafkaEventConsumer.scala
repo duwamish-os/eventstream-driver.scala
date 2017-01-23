@@ -4,6 +4,7 @@ import java.lang.reflect.Method
 import java.util.{Collections, Properties}
 
 import consumer.EventConsumer
+import offset.EventOffsetAndHashValue
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.TopicPartition
 import producer.BaseEvent
@@ -43,8 +44,9 @@ abstract class AbstractKafkaEventConsumer[E <: BaseEvent] extends EventConsumer[
       println(getConsumerPosition)
       println("offset =============================================================|")
 
-      val method: Method = subscribedEventType.getMethod("fromPayload", classOf[String])
-      val s = method.invoke(subscribedEventType.newInstance(), eventRecord.value())
+      val method: Method = subscribedEventType.getMethod("fromPayload", classOf[EventOffsetAndHashValue], classOf[String])
+      val s = method.invoke(subscribedEventType.newInstance(),
+        EventOffsetAndHashValue(eventRecord.offset(), eventRecord.checksum()), eventRecord.value())
       eventHandler.onEvent(s.asInstanceOf[E])
     }
   }

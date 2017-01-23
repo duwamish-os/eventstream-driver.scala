@@ -27,25 +27,7 @@ import scala.collection.JavaConverters._
 
 class KafkaEventPublisherIntegrationSpecs extends FunSuite with BeforeAndAfterEach {
 
-
-  @JsonIgnoreProperties(Array("eventOffset", "hashValue"))
-  case class ItemOrderedEvent(eventOffset: Long, hashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
-    override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = {null}
-
-    override def toJSON(): String = {
-      val objectMapper = new ObjectMapper() with ScalaObjectMapper
-      objectMapper.registerModule(DefaultScalaModule)
-
-      val stream = new ByteArrayOutputStream()
-      objectMapper.writeValue(stream, this)
-      println(stream.toString)
-      stream.toString
-    }
-  }
-
   implicit val streamingConfig = EmbeddedKafkaConfig(kafkaPort = 9092, zooKeeperPort = 2181)
-
-  val kafkaPublisher = new KafkaEventPublisher
 
   override protected def beforeEach(): Unit = EmbeddedKafka.start()
 
@@ -55,9 +37,10 @@ class KafkaEventPublisherIntegrationSpecs extends FunSuite with BeforeAndAfterEa
 
     val event = ItemOrderedEvent(0l, 0l, classOf[ItemOrderedEvent].getSimpleName, new Date(2017, 10, 28))
 
+    val kafkaPublisher = new KafkaEventPublisher
     val persistedEvent = kafkaPublisher.publish(event)
     assert(persistedEvent.eventOffset == 0)
-    assert(persistedEvent.hashValue != 0)
+    assert(persistedEvent.eventHashValue > 0)
 
     val consumerConfig = new Properties() {
       {
@@ -77,14 +60,10 @@ class KafkaEventPublisherIntegrationSpecs extends FunSuite with BeforeAndAfterEa
 
     kafkaConsumer.subscribe(util.Arrays.asList(classOf[ItemOrderedEvent].getSimpleName))
 
-    val topic = AdminUtils.topicExists(new ZkUtils(new ZkClient("localhost:2181", 10000, 15000),
-      new ZkConnection("localhost:2181"), false), classOf[ItemOrderedEvent].getSimpleName)
+    assert(AdminUtils.topicExists(new ZkUtils(new ZkClient("localhost:2181", 10000, 15000),
+      new ZkConnection("localhost:2181"), false), classOf[ItemOrderedEvent].getSimpleName))
 
-    assert(topic)
-
-    var events: ConsumerRecords[String, String] = null
-
-    events = kafkaConsumer.poll(1000)
+    val events: ConsumerRecords[String, String] = kafkaConsumer.poll(1000)
 
     assert(events.asScala.map(_.value()).toList.head == "{\"eventType\":\"ItemOrderedEvent\",\"createdDate\":61470000000000}")
     assert(events.partitions().size() == 1)
@@ -95,12 +74,28 @@ class KafkaEventPublisherIntegrationSpecs extends FunSuite with BeforeAndAfterEa
 
     val event = ItemOrderedEvent(0l, 0l, classOf[ItemOrderedEvent].getSimpleName, new Date(2017, 10, 28))
 
+    val kafkaPublisher = new KafkaEventPublisher
     val persistedEvent = kafkaPublisher.publish(event)
     assert(persistedEvent.eventOffset == 0)
-    assert((persistedEvent.hashValue + "").length > 0)
+    assert((persistedEvent.eventHashValue + "").length > 0)
 
     val persistedEvent2 = kafkaPublisher.publish(ItemOrderedEvent(0l, 0l, classOf[ItemOrderedEvent].getSimpleName, new Date()))
     assert(persistedEvent2.eventOffset == 1)
-    assert((persistedEvent2.hashValue + "").length > 0)
+    assert((persistedEvent2.eventHashValue + "").length > 0)
+  }
+}
+
+@JsonIgnoreProperties(Array("eventOffset", "eventHashValue"))
+case class ItemOrderedEvent(eventOffset: Long, eventHashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
+  override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = {null}
+
+  override def toJSON(): String = {
+    val objectMapper = new ObjectMapper() with ScalaObjectMapper
+    objectMapper.registerModule(DefaultScalaModule)
+
+    val stream = new ByteArrayOutputStream()
+    objectMapper.writeValue(stream, this)
+    println(stream.toString)
+    stream.toString
   }
 }

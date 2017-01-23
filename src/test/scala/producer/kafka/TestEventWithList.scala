@@ -15,7 +15,7 @@ import producer.BaseEvent
 
 case class SomeObject(field1: String, field2: String)
 
-case class TestEventWithList(eventOffset: Long, hashValue: Long, eventType: String, createdDate: Date,
+case class TestEventWithList(eventOffset: Long, eventHashValue: Long, eventType: String, createdDate: Date,
                              someObjects: List[SomeObject])  extends BaseEvent {
 
   def this(){
@@ -29,6 +29,6 @@ case class TestEventWithList(eventOffset: Long, hashValue: Long, eventType: Stri
     mapper.registerModule(DefaultScalaModule)
 
     mapper.readValue(payload, classOf[TestEventWithList])
-      .copy(eventOffset = offset.offset, hashValue = offset.checksum)
+      .copy(eventOffset = offset.offset, eventHashValue = offset.checksum)
   }
 }

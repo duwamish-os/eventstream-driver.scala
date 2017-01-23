@@ -28,23 +28,29 @@ Consumer
 class TestEventHandler extends EventHandler[TestHappenedEvent] {
 
   override def onEvent(event: TestHappenedEvent): Unit = {
-    println(s"event = ${event.testField}")
+    println(s"event = ${event}")
   }
 }
 
 ```
 
 ```scala
-  val consumer = new AbstractKafkaEventConsumer[TestHappenedEvent] {
+  val consumer = new GenericEventConsumer[TestHappenedEvent] {
     addConfiguration(new Properties() {{
         put("group.id", "consumers_testEventsGroup")
-        put("client.id", "testKafkaEventConsumer")
+        put("client.id", "testGenericEventConsumer")
         put("auto.offset.reset", "earliest")
       }})
-      .subscribeEvents(List(classOf[TestHappenedEvent].getSimpleName))
+      .subscribeEvents(List(classOf[TestHappenedEvent]))
       .setEventHandler(new TestEventHandler)
-      .setEventType(classOf[TestHappenedEvent])
-  }
+   }
   
   val events = consumer.consumeAll()
+```
+
+test
+----
+
+```
+sbt clean test
 ```
