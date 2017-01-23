@@ -3,6 +3,7 @@ package producer.kafka
 import java.util.Date
 import java.util.concurrent.{Future, TimeUnit}
 
+import offset.EventOffsetAndHashValue
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord, RecordMetadata}
 import org.apache.kafka.common.TopicPartition
 import org.mockito.Mockito
@@ -19,7 +20,7 @@ class KafkaPublisherSpecs extends FunSuite {
   kafkaPublisher.producer = Mockito.mock(classOf[KafkaProducer[String, String]])
 
   case class InventoryMovedEvent(eventOffset: Long, hashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
-    override def fromPayload(payload: String): BaseEvent = {null}
+    override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = {null}
 
     override def toJSON(): String = ???
   }

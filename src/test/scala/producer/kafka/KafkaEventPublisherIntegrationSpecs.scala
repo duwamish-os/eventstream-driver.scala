@@ -11,6 +11,7 @@ import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import kafka.admin.AdminUtils
 import kafka.utils.ZkUtils
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
+import offset.EventOffsetAndHashValue
 import org.I0Itec.zkclient.{ZkClient, ZkConnection}
 import org.apache.kafka.clients.consumer.{ConsumerRecords, KafkaConsumer}
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -29,7 +30,7 @@ class KafkaEventPublisherIntegrationSpecs extends FunSuite with BeforeAndAfterEa
 
   @JsonIgnoreProperties(Array("eventOffset", "hashValue"))
   case class ItemOrderedEvent(eventOffset: Long, hashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
-    override def fromPayload(payload: String): BaseEvent = {null}
+    override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = {null}
 
     override def toJSON(): String = {
       val objectMapper = new ObjectMapper() with ScalaObjectMapper

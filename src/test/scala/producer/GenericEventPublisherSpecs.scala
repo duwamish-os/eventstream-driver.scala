@@ -6,6 +6,7 @@ import java.util.Date
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
+import offset.EventOffsetAndHashValue
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.FunSuite
 
@@ -15,7 +16,7 @@ import org.scalatest.FunSuite
   */
 
 case class SomethingHappenedEvent(eventOffset: Long, hashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
-  override def fromPayload(payload: String): BaseEvent = null
+  override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = null
 
   override def toJSON(): String = {
     val objectMapper = new ObjectMapper() with ScalaObjectMapper

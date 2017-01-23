@@ -2,6 +2,7 @@ package producer.kafka
 
 import java.util.{Date, Properties, concurrent}
 
+import offset.EventOffsetAndHashValue
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord, RecordMetadata}
 import producer.{AbstractEvent, BaseEvent, EventPublisher}
 
@@ -31,7 +32,7 @@ class KafkaEventPublisher extends EventPublisher {
 
       override def eventType: String = publishedMetadata.get().topic()
 
-      override def fromPayload(payload: String): BaseEvent = {
+      override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = {
         null
       }
 

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
+import offset.EventOffsetAndHashValue
 import org.scalatest.FunSuite
 
 /**
@@ -14,7 +15,7 @@ import org.scalatest.FunSuite
   * on 1/15/17.
   */
 case class ItemSoldEvent(eventOffset: Long, hashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
-  override def fromPayload(payload: String): BaseEvent = null
+  override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = null
 
   override def toJSON(): String = {
     val objectMapper = new ObjectMapper() with ScalaObjectMapper

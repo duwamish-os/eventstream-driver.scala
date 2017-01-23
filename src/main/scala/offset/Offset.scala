@@ -9,3 +9,4 @@ import java.util.Date
 
 case class PartitionOffset(partition: Long, offset: Offset)
 case class Offset(offset: Long, timestamp: Date)
+case class EventOffsetAndHashValue(offset: Long, checksum: Long)
