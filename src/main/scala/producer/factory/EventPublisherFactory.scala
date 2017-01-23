@@ -1,6 +1,7 @@
-package producer
+package producer.factory
 
 import com.typesafe.config.ConfigFactory
+import producer.EventPublisher
 import producer.kafka.KafkaEventPublisher
 
 /**

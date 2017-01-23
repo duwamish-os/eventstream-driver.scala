@@ -1,5 +1,7 @@
 package producer
 
+import producer.factory.EventPublisherFactory
+
 /**
   * Created by prayagupd
   * on 1/15/17.

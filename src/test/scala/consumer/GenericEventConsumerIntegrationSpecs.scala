@@ -13,7 +13,7 @@ import producer.GenericEventPublisher
   * on 1/23/17.
   */
 
-class GenericEventConsumerSpecs extends FunSuite with BeforeAndAfterEach {
+class GenericEventConsumerIntegrationSpecs extends FunSuite with BeforeAndAfterEach {
 
   implicit val streamingConfig = new EmbeddedKafkaConfig(zooKeeperPort = 2181, kafkaPort = 9092)
 

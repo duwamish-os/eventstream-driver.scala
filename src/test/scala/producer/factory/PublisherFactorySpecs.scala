@@ -1,4 +1,4 @@
-package producer
+package producer.factory
 
 import org.scalatest.FunSuite
 import producer.kafka.KafkaEventPublisher
