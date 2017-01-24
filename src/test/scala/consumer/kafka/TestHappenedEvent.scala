@@ -7,8 +7,7 @@ import com.fasterxml.jackson.annotation.{JsonIgnore, JsonIgnoreProperties}
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
-import offset.EventOffsetAndHashValue
-import producer.BaseEvent
+import event.{BaseEvent, EventOffsetAndHashValue}
 
 /**
   * Created by prayagupd

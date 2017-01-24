@@ -2,9 +2,9 @@ package producer.kafka
 
 import java.util.{Date, Properties, concurrent}
 
-import offset.EventOffsetAndHashValue
+import event.{BaseEvent, EventOffsetAndHashValue}
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord, RecordMetadata}
-import producer.{AbstractEvent, BaseEvent, EventPublisher}
+import producer.EventPublisher
 
 /**
   * Created by prayagupd
@@ -17,12 +17,12 @@ class KafkaEventPublisher extends EventPublisher {
     load(this.getClass.getResourceAsStream("/producer.properties"))
   }}
 
-  var producer = new KafkaProducer[String, String](config)
+  var eventProducer = new KafkaProducer[String, String](config)
 
   override def publish(event: BaseEvent): BaseEvent = {
 
     val publishedMetadata : concurrent.Future[RecordMetadata] =
-      producer.send(new ProducerRecord[String, String](event.getClass.getSimpleName, event.toString))
+      eventProducer.send(new ProducerRecord[String, String](event.getClass.getSimpleName, event.toString))
 
     new BaseEvent {
       override def createdDate: Date = new Date(publishedMetadata.get().timestamp())
@@ -33,6 +33,7 @@ class KafkaEventPublisher extends EventPublisher {
 
       override def eventType: String = publishedMetadata.get().topic()
 
+      //FIXME make it a direct instance of event
       override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = {null}
 
       override def toJSON(): String = {null}

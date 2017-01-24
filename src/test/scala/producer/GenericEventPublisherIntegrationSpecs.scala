@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
-import offset.EventOffsetAndHashValue
+import event.{BaseEvent, EventOffsetAndHashValue}
 import org.scalatest.FunSuite
 
 /**

@@ -2,8 +2,7 @@ package consumer
 
 import java.util.Properties
 
-import consumer.kafka.EventHandler
-import producer.BaseEvent
+import event.BaseEvent
 
 /**
   * Created by prayagupd

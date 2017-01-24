@@ -1,9 +1,8 @@
 package consumer
 
 import java.util.Date
-import java.util.zip.CRC32
 
-import consumer.kafka.{EventHandler, TestHappenedEvent}
+import consumer.kafka.TestHappenedEvent
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
 import producer.GenericEventPublisher

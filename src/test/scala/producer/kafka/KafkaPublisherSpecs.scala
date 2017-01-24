@@ -3,12 +3,11 @@ package producer.kafka
 import java.util.Date
 import java.util.concurrent.{Future, TimeUnit}
 
-import offset.EventOffsetAndHashValue
+import event.{BaseEvent, EventOffsetAndHashValue}
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord, RecordMetadata}
 import org.apache.kafka.common.TopicPartition
 import org.mockito.Mockito
 import org.scalatest.FunSuite
-import producer.BaseEvent
 
 /**
   * Created by prayagupd
@@ -17,7 +16,7 @@ import producer.BaseEvent
 
 class KafkaPublisherSpecs extends FunSuite {
   val kafkaPublisher = new KafkaEventPublisher
-  kafkaPublisher.producer = Mockito.mock(classOf[KafkaProducer[String, String]])
+  kafkaPublisher.eventProducer = Mockito.mock(classOf[KafkaProducer[String, String]])
 
   case class InventoryMovedEvent(eventOffset: Long, eventHashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
     override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = {null}
@@ -46,12 +45,12 @@ class KafkaPublisherSpecs extends FunSuite {
       override def isDone: Boolean = false
     }
 
-    Mockito.when(kafkaPublisher.producer
+    Mockito.when(kafkaPublisher.eventProducer
       .send(new ProducerRecord[String, String](event.getClass.getSimpleName, event.toString))) thenReturn mockMetadata
 
     val returndEvent = kafkaPublisher.publish(event)
 
-    Mockito.verify(kafkaPublisher.producer).send(new ProducerRecord[String, String](event.getClass.getSimpleName, event.toString))
+    Mockito.verify(kafkaPublisher.eventProducer).send(new ProducerRecord[String, String](event.getClass.getSimpleName, event.toString))
 
     assert(returndEvent.eventHashValue == 100l)
   }

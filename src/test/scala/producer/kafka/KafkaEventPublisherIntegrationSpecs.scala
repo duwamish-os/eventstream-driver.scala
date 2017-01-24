@@ -11,12 +11,11 @@ import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import kafka.admin.AdminUtils
 import kafka.utils.ZkUtils
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
-import offset.EventOffsetAndHashValue
+import event.{BaseEvent, EventOffsetAndHashValue}
 import org.I0Itec.zkclient.{ZkClient, ZkConnection}
 import org.apache.kafka.clients.consumer.{ConsumerRecords, KafkaConsumer}
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
-import producer.BaseEvent
 
 import scala.collection.JavaConverters._
 

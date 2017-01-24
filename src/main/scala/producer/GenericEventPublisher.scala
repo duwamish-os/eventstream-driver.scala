@@ -1,5 +1,6 @@
 package producer
 
+import event.BaseEvent
 import producer.factory.EventPublisherFactory
 
 /**

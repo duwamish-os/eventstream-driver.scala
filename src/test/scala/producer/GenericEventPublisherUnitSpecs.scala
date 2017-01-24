@@ -6,7 +6,7 @@ import java.util.Date
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
-import offset.EventOffsetAndHashValue
+import event.{BaseEvent, EventOffsetAndHashValue}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.FunSuite
 
@@ -28,7 +28,7 @@ case class SomethingHappenedEvent(eventOffset: Long, eventHashValue: Long, event
   }
 }
 
-class GenericEventPublisherSpecs extends FunSuite with MockFactory {
+class GenericEventPublisherUnitSpecs extends FunSuite with MockFactory {
 
   val genericEventPublishertPublisher = new GenericEventPublisher
   genericEventPublishertPublisher.eventPublisher = mock[EventPublisher]

@@ -8,7 +8,7 @@ import producer.kafka.KafkaEventPublisher
   * on 1/15/17.
   */
 
-class PublisherFactorySpecs extends FunSuite {
+class PublisherFactoryUnitSpecs extends FunSuite {
 
   val publisherFactory = new EventPublisherFactory
 

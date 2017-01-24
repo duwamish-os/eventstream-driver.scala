@@ -3,11 +3,10 @@ package consumer.kafka
 import java.lang.reflect.Method
 import java.util.{Collections, Properties}
 
-import consumer.EventConsumer
-import offset.EventOffsetAndHashValue
+import consumer.{EventConsumer, EventHandler}
+import event.{BaseEvent, EventOffsetAndHashValue}
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.TopicPartition
-import producer.BaseEvent
 
 import scala.collection.JavaConversions._
 
@@ -15,10 +14,6 @@ import scala.collection.JavaConversions._
   * Created by prayagupd
   * on 1/15/17.
   */
-
-trait EventHandler[E <: BaseEvent] {
-  def onEvent(event: E)
-}
 
 abstract class AbstractKafkaEventConsumer[E <: BaseEvent] extends EventConsumer[E] {
 

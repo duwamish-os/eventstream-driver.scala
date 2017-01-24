@@ -2,6 +2,7 @@ package consumer.kafka
 
 import java.util.{Date, Properties}
 
+import consumer.EventHandler
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
@@ -20,7 +21,7 @@ class TestEventHandler extends EventHandler[TestHappenedEvent] {
   }
 }
 
-class KafkaEventConsumerSpecs extends FunSuite with BeforeAndAfterEach {
+class KafkaEventConsumerIntegrationSpecs extends FunSuite with BeforeAndAfterEach {
 
   implicit val streamingConfig = EmbeddedKafkaConfig(kafkaPort = 9092, zooKeeperPort = 2181)
 

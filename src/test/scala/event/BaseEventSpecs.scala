@@ -1,9 +1,8 @@
-package producer
+package event
 
 import java.util.Date
 
 import consumer.kafka.TestHappenedEvent
-import offset.EventOffsetAndHashValue
 import org.scalatest.FunSuite
 import producer.kafka.{SomeObject, TestEventWithList}
 import spray.json._

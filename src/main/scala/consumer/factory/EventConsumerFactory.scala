@@ -3,7 +3,7 @@ package consumer.factory
 import com.typesafe.config.ConfigFactory
 import consumer.EventConsumer
 import consumer.kafka.AbstractKafkaEventConsumer
-import producer.BaseEvent
+import event.BaseEvent
 
 /**
   * Created by prayagupd
