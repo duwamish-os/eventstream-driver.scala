@@ -21,7 +21,14 @@ trait BaseEvent {
 
   def createdDate: Date
 
-  def toJSON(): String
+  def toJSON[E <: BaseEvent](event: E): String = {
+    val objectMapper = new ObjectMapper() with ScalaObjectMapper
+    objectMapper.registerModule(DefaultScalaModule)
+
+    val stream = new ByteArrayOutputStream()
+    objectMapper.writeValue(stream, event)
+    stream.toString
+  }
 
   def fromPayload(payload: String): BaseEvent = {
     fromPayload(EventOffsetAndHashValue(0, 0), payload)
@@ -31,7 +38,6 @@ trait BaseEvent {
   //have impl in each concrete impl
   def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent
 
-  override def toString: String = toJSON()
 }
 
 case class AbstractEvent(eventOffset: Long, eventHashValue: Long, eventType: String, createdDate: Date)
@@ -39,14 +45,5 @@ case class AbstractEvent(eventOffset: Long, eventHashValue: Long, eventType: Str
 
   override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = {
     AbstractEvent(0, 0, payload, new Date())
-  }
-
-  override def toJSON(): String = {
-    val objectMapper = new ObjectMapper() with ScalaObjectMapper
-    objectMapper.registerModule(DefaultScalaModule)
-
-    val stream = new ByteArrayOutputStream()
-    objectMapper.writeValue(stream, this)
-    stream.toString
   }
 }

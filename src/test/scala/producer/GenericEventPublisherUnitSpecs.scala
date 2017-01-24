@@ -15,17 +15,9 @@ import org.scalatest.FunSuite
   * on 1/15/17.
   */
 
-case class SomethingHappenedEvent(eventOffset: Long, eventHashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
+case class SomethingHappenedEvent(eventOffset: Long, eventHashValue: Long, eventType: String, createdDate: Date)
+  extends BaseEvent {
   override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = null
-
-  override def toJSON(): String = {
-    val objectMapper = new ObjectMapper() with ScalaObjectMapper
-    objectMapper.registerModule(DefaultScalaModule)
-
-    val stream = new ByteArrayOutputStream()
-    objectMapper.writeValue(stream, this)
-    stream.toString
-  }
 }
 
 class GenericEventPublisherUnitSpecs extends FunSuite with MockFactory {

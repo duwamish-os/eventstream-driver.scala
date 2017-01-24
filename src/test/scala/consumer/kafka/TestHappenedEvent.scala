@@ -31,13 +31,5 @@ case class TestHappenedEvent(eventOffset: Long, eventHashValue: Long, eventType:
       .copy(eventOffset = offset.offset, eventHashValue = offset.checksum)
   }
 
-  override def toJSON(): String = {
-    val objectMapper = new ObjectMapper() with ScalaObjectMapper
-    objectMapper.registerModule(DefaultScalaModule)
-
-    val data = this.copy()
-    val stream = new ByteArrayOutputStream()
-    objectMapper.writeValue(stream, data)
-    stream.toString
-  }
+  override def toString: String = toJSON(this.copy())
 }

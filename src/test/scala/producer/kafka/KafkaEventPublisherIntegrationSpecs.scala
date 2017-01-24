@@ -53,9 +53,7 @@ class KafkaEventPublisherIntegrationSpecs extends FunSuite with BeforeAndAfterEa
 
     val kafkaConsumer = new KafkaConsumer[String, String](consumerConfig)
 
-    val topics = kafkaConsumer.listTopics().asScala
-
-    assert(topics.map(_._1) == List(classOf[ItemOrderedEvent].getSimpleName))
+    assert(kafkaConsumer.listTopics().asScala.map(_._1) == List(classOf[ItemOrderedEvent].getSimpleName))
 
     kafkaConsumer.subscribe(util.Arrays.asList(classOf[ItemOrderedEvent].getSimpleName))
 
@@ -87,14 +85,4 @@ class KafkaEventPublisherIntegrationSpecs extends FunSuite with BeforeAndAfterEa
 @JsonIgnoreProperties(Array("eventOffset", "eventHashValue"))
 case class ItemOrderedEvent(eventOffset: Long, eventHashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
   override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = {null}
-
-  override def toJSON(): String = {
-    val objectMapper = new ObjectMapper() with ScalaObjectMapper
-    objectMapper.registerModule(DefaultScalaModule)
-
-    val stream = new ByteArrayOutputStream()
-    objectMapper.writeValue(stream, this)
-    println(stream.toString)
-    stream.toString
-  }
 }

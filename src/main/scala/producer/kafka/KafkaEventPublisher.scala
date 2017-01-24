@@ -22,7 +22,7 @@ class KafkaEventPublisher extends EventPublisher {
   override def publish(event: BaseEvent): BaseEvent = {
 
     val publishedMetadata : concurrent.Future[RecordMetadata] =
-      eventProducer.send(new ProducerRecord[String, String](event.getClass.getSimpleName, event.toString))
+      eventProducer.send(new ProducerRecord[String, String](event.getClass.getSimpleName, event.toJSON(event)))
 
     new BaseEvent {
       override def createdDate: Date = new Date(publishedMetadata.get().timestamp())
@@ -35,8 +35,6 @@ class KafkaEventPublisher extends EventPublisher {
 
       //FIXME make it a direct instance of event
       override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = {null}
-
-      override def toJSON(): String = {null}
     }.asInstanceOf[event.type]
 
   }

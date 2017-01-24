@@ -19,7 +19,7 @@ class BaseEventSpecs extends FunSuite {
   case class Test(name: String)
 
   test("converts itself to JSON") {
-    assert(abstractEvent.toJSON().parseJson ==
+    assert(abstractEvent.toJSON(abstractEvent.copy()).parseJson ==
       """
         {
           "eventType":"TestHappenedEvent",

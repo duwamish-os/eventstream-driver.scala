@@ -14,16 +14,12 @@ import org.scalatest.FunSuite
   * on 1/14/17.
   */
 
-class KafkaPublisherSpecs extends FunSuite {
+class KafkaPublisherUnitSpecs extends FunSuite {
   val kafkaPublisher = new KafkaEventPublisher
   kafkaPublisher.eventProducer = Mockito.mock(classOf[KafkaProducer[String, String]])
 
   case class InventoryMovedEvent(eventOffset: Long, eventHashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
     override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = {null}
-
-    override def toJSON(): String = {
-      ""
-    }
   }
 
   test("produces a record and returns event with checksum") {
@@ -46,11 +42,12 @@ class KafkaPublisherSpecs extends FunSuite {
     }
 
     Mockito.when(kafkaPublisher.eventProducer
-      .send(new ProducerRecord[String, String](event.getClass.getSimpleName, event.toString))) thenReturn mockMetadata
+      .send(new ProducerRecord[String, String](event.getClass.getSimpleName, event.toJSON(event)))) thenReturn mockMetadata
 
     val returndEvent = kafkaPublisher.publish(event)
 
-    Mockito.verify(kafkaPublisher.eventProducer).send(new ProducerRecord[String, String](event.getClass.getSimpleName, event.toString))
+    Mockito.verify(kafkaPublisher.eventProducer).send(
+      new ProducerRecord[String, String](event.getClass.getSimpleName, event.toJSON(event)))
 
     assert(returndEvent.eventHashValue == 100l)
   }

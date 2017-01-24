@@ -17,14 +17,6 @@ import org.scalatest.FunSuite
 case class ItemSoldEvent(eventOffset: Long, eventHashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
   override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = null
 
-  override def toJSON(): String = {
-    val objectMapper = new ObjectMapper() with ScalaObjectMapper
-    objectMapper.registerModule(DefaultScalaModule)
-
-    val stream = new ByteArrayOutputStream()
-    objectMapper.writeValue(stream, this)
-    stream.toString
-  }
 }
 
 class GenericEventPublisherIntegrationSpecs extends FunSuite {

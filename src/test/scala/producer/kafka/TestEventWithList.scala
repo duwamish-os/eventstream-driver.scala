@@ -21,8 +21,6 @@ case class TestEventWithList(eventOffset: Long, eventHashValue: Long, eventType:
     this(0, 0, "", new Date(), List.empty)
   }
 
-  override def toJSON(): String = null
-
   override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = {
     val mapper = new ObjectMapper() with ScalaObjectMapper
     mapper.registerModule(DefaultScalaModule)
