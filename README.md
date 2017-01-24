@@ -68,9 +68,20 @@ class TestEventHandler extends EventHandler[TestHappenedEvent] {
   val events = consumer.consumeAll()
 ```
 
-test
-----
+build artifact to local maven repo
+----------------------------------
 
+```bash
+sbt clean test publish
 ```
-sbt clean test
+
+use as a dependency
+-------------------
+
+```scala
+libraryDependencies ++= {
+  Seq(
+    "nihilos" %% "streaming-driver" % "1.0"
+  )
+}
 ```

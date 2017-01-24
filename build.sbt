@@ -1,3 +1,5 @@
+organization := "nihilos"
+
 name := "streaming-driver"
 
 version := "1.0"
@@ -5,6 +7,8 @@ version := "1.0"
 scalaVersion := "2.11.8"
 
 parallelExecution in Test := false
+
+publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))
 
 libraryDependencies ++= {
   Seq(
