@@ -22,14 +22,9 @@ case class TestHappenedEvent(eventOffset: Long, eventHashValue: Long, eventType:
     this(0, 0, "", new Date(), "")
   }
 
-  override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = {
-
-    val mapper = new ObjectMapper() with ScalaObjectMapper
-    mapper.registerModule(DefaultScalaModule)
-
-    mapper.readValue(payload, classOf[TestHappenedEvent])
-      .copy(eventOffset = offset.offset, eventHashValue = offset.checksum)
-  }
-
   override def toString: String = toJSON(this.copy())
+
+  override def copyy(eventOffset: Long, eventHashValue: Long): BaseEvent = {
+    this.copy(eventOffset = eventOffset, eventHashValue = eventHashValue)
+  }
 }

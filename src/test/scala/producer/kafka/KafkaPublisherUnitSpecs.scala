@@ -19,7 +19,9 @@ class KafkaPublisherUnitSpecs extends FunSuite {
   kafkaPublisher.eventProducer = Mockito.mock(classOf[KafkaProducer[String, String]])
 
   case class InventoryMovedEvent(eventOffset: Long, eventHashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
-    override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = {null}
+    override def copyy(eventOffset: Long, eventHashValue: Long): BaseEvent = {
+      this.copy(eventOffset = eventOffset, eventHashValue = eventHashValue)
+    }
   }
 
   test("produces a record and returns event with checksum") {

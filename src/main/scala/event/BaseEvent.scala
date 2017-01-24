@@ -30,20 +30,17 @@ trait BaseEvent {
     stream.toString
   }
 
-  def fromPayload(payload: String): BaseEvent = {
-    fromPayload(EventOffsetAndHashValue(0, 0), payload)
+  def fromPayload[E <: BaseEvent](payload: String, eventType: Class[E]): BaseEvent = {
+    fromPayload(EventOffsetAndHashValue(0, 0), payload, eventType)
   }
 
-  //FIXME make a way to have impl in trait itself so that there's no need to
-  //have impl in each concrete impl
-  def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent
+  def fromPayload[E <: BaseEvent](offset: EventOffsetAndHashValue, payload: String, eventType: Class[E]): BaseEvent = {
+    val mapper = new ObjectMapper() with ScalaObjectMapper
+    mapper.registerModule(DefaultScalaModule)
 
-}
-
-case class AbstractEvent(eventOffset: Long, eventHashValue: Long, eventType: String, createdDate: Date)
-  extends BaseEvent {
-
-  override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = {
-    AbstractEvent(0, 0, payload, new Date())
+    mapper.readValue(payload, eventType)
+      .copyy(eventOffset = offset.offset, eventHashValue = offset.checksum)
   }
+
+  def copyy(eventOffset: Long, eventHashValue: Long) : BaseEvent
 }

@@ -15,7 +15,9 @@ import org.scalatest.FunSuite
   * on 1/15/17.
   */
 case class ItemSoldEvent(eventOffset: Long, eventHashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
-  override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = null
+  override def copyy(eventOffset: Long, eventHashValue: Long): BaseEvent = {
+    this.copy(eventOffset = eventOffset, eventHashValue = eventHashValue)
+  }
 
 }
 

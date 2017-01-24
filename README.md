@@ -84,4 +84,11 @@ libraryDependencies ++= {
     "nihilos" %% "streaming-driver" % "1.0"
   )
 }
+
+ls -li ~/.ivy2/cache/nihilos/
 ```
+
+TODO
+----
+
+add multi event types consumer

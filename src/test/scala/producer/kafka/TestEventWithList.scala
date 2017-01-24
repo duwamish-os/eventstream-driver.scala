@@ -21,11 +21,7 @@ case class TestEventWithList(eventOffset: Long, eventHashValue: Long, eventType:
     this(0, 0, "", new Date(), List.empty)
   }
 
-  override def fromPayload(offset: EventOffsetAndHashValue, payload: String): BaseEvent = {
-    val mapper = new ObjectMapper() with ScalaObjectMapper
-    mapper.registerModule(DefaultScalaModule)
-
-    mapper.readValue(payload, classOf[TestEventWithList])
-      .copy(eventOffset = offset.offset, eventHashValue = offset.checksum)
+  override def copyy(eventOffset: Long, eventHashValue: Long): BaseEvent = {
+    this.copy(eventOffset = eventOffset, eventHashValue = eventHashValue)
   }
 }

@@ -39,9 +39,10 @@ abstract class AbstractKafkaEventConsumer[E <: BaseEvent] extends EventConsumer[
       println(getConsumerPosition)
       println("offset =============================================================|")
 
-      val method: Method = subscribedEventType.getMethod("fromPayload", classOf[EventOffsetAndHashValue], classOf[String])
+      val method: Method = subscribedEventType.getMethod("fromPayload", classOf[EventOffsetAndHashValue],
+        classOf[String], subscribedEventType.getClass)
       val s = method.invoke(subscribedEventType.newInstance(),
-        EventOffsetAndHashValue(eventRecord.offset(), eventRecord.checksum()), eventRecord.value())
+        EventOffsetAndHashValue(eventRecord.offset(), eventRecord.checksum()), eventRecord.value(), subscribedEventType)
       eventHandler.onEvent(s.asInstanceOf[E])
     }
   }
