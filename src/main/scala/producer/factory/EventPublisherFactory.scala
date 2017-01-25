@@ -13,9 +13,9 @@ class EventPublisherFactory {
 
   val streamingConfig = ConfigFactory.load("streaming.conf")
 
-  def create() : EventPublisher = {
+  def create(stream: String) : EventPublisher = {
     streamingConfig.getString("streaming.driver") match {
-      case "Kafka" => new KafkaEventPublisher
+      case "Kafka" => new KafkaEventPublisher(stream)
       case _ => null
     }
   }

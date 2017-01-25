@@ -24,7 +24,7 @@ case class SomethingHappenedEvent(eventOffset: Long, eventHashValue: Long, event
 
 class GenericEventPublisherUnitSpecs extends FunSuite with MockFactory {
 
-  val genericEventPublishertPublisher = new GenericEventPublisher
+  val genericEventPublishertPublisher = new GenericEventPublisher("someEventStream")
   genericEventPublishertPublisher.eventPublisher = mock[EventPublisher]
 
   test("delegates to the actual producer returned by factory") {

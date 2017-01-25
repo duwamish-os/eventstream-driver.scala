@@ -13,7 +13,7 @@ class PublisherFactoryUnitSpecs extends FunSuite {
   val publisherFactory = new EventPublisherFactory
 
   test("when config is KafkaDriver, returns a Kafka Publisher") {
-    val publisher = publisherFactory.create()
+    val publisher = publisherFactory.create("whatever stream")
     assert(publisher.isInstanceOf[KafkaEventPublisher])
   }
 }

@@ -11,7 +11,7 @@ import producer.EventPublisher
   * on 1/14/17.
   */
 
-class KafkaEventPublisher extends EventPublisher {
+class KafkaEventPublisher(stream: String) extends EventPublisher {
 
   val config = new Properties(){{
     load(this.getClass.getResourceAsStream("/producer.properties"))
@@ -22,7 +22,7 @@ class KafkaEventPublisher extends EventPublisher {
   override def publish(event: BaseEvent): BaseEvent = {
 
     val publishedMetadata : concurrent.Future[RecordMetadata] =
-      eventProducer.send(new ProducerRecord[String, String](event.getClass.getSimpleName, event.toJSON(event)))
+      eventProducer.send(new ProducerRecord[String, String](stream, event.toJSON(event)))
 
     //FIXME .copy instead
     new BaseEvent {

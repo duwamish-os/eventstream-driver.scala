@@ -36,7 +36,7 @@ class KafkaEventPublisherIntegrationSpecs extends FunSuite with BeforeAndAfterEa
 
     val event = ItemOrderedEvent(0l, 0l, classOf[ItemOrderedEvent].getSimpleName, new Date(2017, 10, 28))
 
-    val kafkaPublisher = new KafkaEventPublisher
+    val kafkaPublisher = new KafkaEventPublisher("ItemEventStream")
     val persistedEvent = kafkaPublisher.publish(event)
     assert(persistedEvent.eventOffset == 0)
     assert(persistedEvent.eventHashValue > 0)
@@ -53,12 +53,12 @@ class KafkaEventPublisherIntegrationSpecs extends FunSuite with BeforeAndAfterEa
 
     val kafkaConsumer = new KafkaConsumer[String, String](consumerConfig)
 
-    assert(kafkaConsumer.listTopics().asScala.map(_._1) == List(classOf[ItemOrderedEvent].getSimpleName))
+    assert(kafkaConsumer.listTopics().asScala.map(_._1) == List("ItemEventStream"))
 
-    kafkaConsumer.subscribe(util.Arrays.asList(classOf[ItemOrderedEvent].getSimpleName))
+    kafkaConsumer.subscribe(util.Arrays.asList("ItemEventStream"))
 
     assert(AdminUtils.topicExists(new ZkUtils(new ZkClient("localhost:2181", 10000, 15000),
-      new ZkConnection("localhost:2181"), false), classOf[ItemOrderedEvent].getSimpleName))
+      new ZkConnection("localhost:2181"), false), "ItemEventStream"))
 
     val events: ConsumerRecords[String, String] = kafkaConsumer.poll(1000)
 
@@ -71,7 +71,7 @@ class KafkaEventPublisherIntegrationSpecs extends FunSuite with BeforeAndAfterEa
 
     val event = ItemOrderedEvent(0l, 0l, classOf[ItemOrderedEvent].getSimpleName, new Date(2017, 10, 28))
 
-    val kafkaPublisher = new KafkaEventPublisher
+    val kafkaPublisher = new KafkaEventPublisher("ItemEventStream")
     val persistedEvent = kafkaPublisher.publish(event)
     assert(persistedEvent.eventOffset == 0)
     assert((persistedEvent.eventHashValue + "").length > 0)

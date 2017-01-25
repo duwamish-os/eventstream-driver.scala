@@ -3,7 +3,7 @@ package consumer.kafka
 import java.lang.reflect.Method
 import java.util.{Collections, Properties}
 
-import consumer.{EventConsumer, EventHandler}
+import consumer.{SingleEventConsumer, EventHandler}
 import event.{BaseEvent, EventOffsetAndHashValue}
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.TopicPartition
@@ -15,7 +15,7 @@ import scala.collection.JavaConversions._
   * on 1/15/17.
   */
 
-abstract class AbstractKafkaEventConsumer[E <: BaseEvent] extends EventConsumer[E] {
+abstract class AbstractKafkaSingleEventConsumer[E <: BaseEvent](streams: List[String]) extends SingleEventConsumer[E] {
 
   var eventTypePartition: Int = 0
   var subscribedEventType: Class[E] = _
@@ -28,16 +28,18 @@ abstract class AbstractKafkaEventConsumer[E <: BaseEvent] extends EventConsumer[
     }
   }
 
-  var consumer: KafkaConsumer[String, String] = null
+  var nativeConsumer: KafkaConsumer[String, String] = null
 
   override def consumeAll() = {
-    val events = consumer.poll(1000)
+    val events = nativeConsumer.poll(1000)
+
+    println(s"Events consumed at once = ${events.size}")
 
     for (eventRecord <- events) {
 
-      println("offset =============================================================|")
-      println(getConsumerPosition)
-      println("offset =============================================================|")
+      println("=================================== consumer offset ===============================|")
+      println(s"================================== $getConsumerPosition ==========================|")
+      println("=================================== consumer offset ===============================|")
 
       val method: Method = subscribedEventType.getMethod("fromPayload", classOf[EventOffsetAndHashValue],
         classOf[String], subscribedEventType.getClass)
@@ -47,33 +49,33 @@ abstract class AbstractKafkaEventConsumer[E <: BaseEvent] extends EventConsumer[
     }
   }
 
-  override def subscribeEvents(eventTypes: Class[E]): EventConsumer[E] = {
+  override def subscribeEventsInStream(eventTypes: Class[E]): SingleEventConsumer[E] = {
     this.subscribedEventType = eventTypes
-    consumer = new KafkaConsumer[String, String](config)
-    consumer.subscribe(Collections.singletonList(subscribedEventType.getSimpleName))
+    nativeConsumer = new KafkaConsumer[String, String](config)
+    nativeConsumer.subscribe(streams)
     this
   }
 
-  override def subscribePartitions(partition: Int): EventConsumer[E] = {
+  override def subscribePartitions(partition: Int): SingleEventConsumer[E] = {
     this.eventTypePartition = partition
     this
   }
 
-  override def addConfiguration(key: String, value: String): EventConsumer[E] = {
+  override def addConfiguration(key: String, value: String): SingleEventConsumer[E] = {
     config.put(key, value)
     this
   }
 
-  override def addConfiguration(properties: Properties): EventConsumer[E] = {
+  override def addConfiguration(properties: Properties): SingleEventConsumer[E] = {
     config.putAll(properties)
     this
   }
 
-  override def listEventTypesInStream(): List[String] = {
-    consumer.listTopics().map(_._1).toList
+  override def getExistingEventStreams(): List[String] = {
+    nativeConsumer.listTopics().map(_._1).toList
   }
 
-  def setEventHandler(eventHandler: EventHandler[E]): EventConsumer[E] = {
+  def setEventHandler(eventHandler: EventHandler[E]): SingleEventConsumer[E] = {
     this.eventHandler = eventHandler
     this
   }
@@ -81,6 +83,6 @@ abstract class AbstractKafkaEventConsumer[E <: BaseEvent] extends EventConsumer[
   override def getConfiguration: Properties = config
 
   override def getConsumerPosition: Long = {
-    consumer.position(new TopicPartition(subscribedEventType.getSimpleName, eventTypePartition))
+    nativeConsumer.position(new TopicPartition(streams.head, eventTypePartition))
   }
 }

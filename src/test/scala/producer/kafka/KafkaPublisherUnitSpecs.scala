@@ -15,14 +15,9 @@ import org.scalatest.FunSuite
   */
 
 class KafkaPublisherUnitSpecs extends FunSuite {
-  val kafkaPublisher = new KafkaEventPublisher
-  kafkaPublisher.eventProducer = Mockito.mock(classOf[KafkaProducer[String, String]])
 
-  case class InventoryMovedEvent(eventOffset: Long, eventHashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
-    override def copyy(eventOffset: Long, eventHashValue: Long): BaseEvent = {
-      this.copy(eventOffset = eventOffset, eventHashValue = eventHashValue)
-    }
-  }
+  val kafkaPublisher = new KafkaEventPublisher("InventoryStream")
+  kafkaPublisher.eventProducer = Mockito.mock(classOf[KafkaProducer[String, String]])
 
   test("produces a record and returns event with checksum") {
     val event = InventoryMovedEvent(1l, 12l, classOf[InventoryMovedEvent].getSimpleName, new Date())
@@ -44,13 +39,19 @@ class KafkaPublisherUnitSpecs extends FunSuite {
     }
 
     Mockito.when(kafkaPublisher.eventProducer
-      .send(new ProducerRecord[String, String](event.getClass.getSimpleName, event.toJSON(event)))) thenReturn mockMetadata
+      .send(new ProducerRecord[String, String]("InventoryStream", event.toJSON(event)))) thenReturn mockMetadata
 
     val returndEvent = kafkaPublisher.publish(event)
 
     Mockito.verify(kafkaPublisher.eventProducer).send(
-      new ProducerRecord[String, String](event.getClass.getSimpleName, event.toJSON(event)))
+      new ProducerRecord[String, String]("InventoryStream", event.toJSON(event)))
 
     assert(returndEvent.eventHashValue == 100l)
+  }
+}
+
+case class InventoryMovedEvent(eventOffset: Long, eventHashValue: Long, eventType: String, createdDate: Date) extends BaseEvent {
+  override def copyy(eventOffset: Long, eventHashValue: Long): BaseEvent = {
+    this.copy(eventOffset = eventOffset, eventHashValue = eventHashValue)
   }
 }

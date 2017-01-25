@@ -1,8 +1,8 @@
 package consumer.factory
 
 import com.typesafe.config.ConfigFactory
-import consumer.EventConsumer
-import consumer.kafka.AbstractKafkaEventConsumer
+import consumer.SingleEventConsumer
+import consumer.kafka.AbstractKafkaSingleEventConsumer
 import event.BaseEvent
 
 /**
@@ -11,9 +11,9 @@ import event.BaseEvent
   */
 class EventConsumerFactory[E <: BaseEvent] {
 
-  def create (): EventConsumer[E] = {
+  def create (streams: List[String]): SingleEventConsumer[E] = {
     ConfigFactory.load("streaming.conf").getString("streaming.driver") match {
-      case "Kafka" => new AbstractKafkaEventConsumer[E] {}
+      case "Kafka" => new AbstractKafkaSingleEventConsumer[E](streams) {}
       case _ => throw new NoSuchElementException("No such driver found.")
     }
   }

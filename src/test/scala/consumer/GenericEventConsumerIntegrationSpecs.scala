@@ -16,13 +16,13 @@ class GenericEventConsumerIntegrationSpecs extends FunSuite with BeforeAndAfterE
 
   implicit val streamingConfig = new EmbeddedKafkaConfig(zooKeeperPort = 2181, kafkaPort = 9092)
 
-  val eventProducer = new GenericEventPublisher
+  val eventProducer = new GenericEventPublisher("TestEventStream")
 
-  val genericEventConsumer = new GenericEventConsumer[TestHappenedEvent]
+  val genericEventConsumer = new GenericSingleEventConsumer[TestHappenedEvent](List("TestEventStream"))
     .addConfiguration("group.id", "some_consumer_group")
     .addConfiguration("client.id", "genericEventConsumerInstance")
     .addConfiguration("auto.offset.reset", "earliest")
-    .subscribeEvents(classOf[TestHappenedEvent])
+    .subscribeEventsInStream(classOf[TestHappenedEvent])
     .setEventHandler(new EventHandler[TestHappenedEvent] {
       override def onEvent(event: TestHappenedEvent): Unit = println(s"processing $event")
     })

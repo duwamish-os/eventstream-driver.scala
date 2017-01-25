@@ -23,7 +23,7 @@ case class ItemSoldEvent(eventOffset: Long, eventHashValue: Long, eventType: Str
 
 class GenericEventPublisherIntegrationSpecs extends FunSuite {
 
-  val genericEventPublisher = new GenericEventPublisher
+  val genericEventPublisher = new GenericEventPublisher("ItemsEventStream")
 
   test("publishes an event based on streaming-conf") {
 
