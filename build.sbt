@@ -20,6 +20,7 @@ libraryDependencies ++= {
     "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.5",
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.8.6",
     "com.fasterxml.jackson.module" % "jackson-module-scala_2.11" % "2.8.4",
+    "org.json" % "json" % "20160810",
 
     "com.typesafe.akka" %%"akka-http-testkit-experimental" % "1.0",
     "org.scalatest" %% "scalatest" % "3.0.0",

@@ -26,7 +26,7 @@ class KafkaSingleEventConsumerIntegrationSpecs extends FunSuite with BeforeAndAf
     EmbeddedKafka.stop()
   }
 
-  test("given an event in the event-store, consumes an event") {
+  test("given an event in the event-store, consumer consumes an event") {
 
     val event = TestHappenedConsumerEvent(0l, 0l, classOf[TestHappenedConsumerEvent].getSimpleName, new Date(), "data1")
 

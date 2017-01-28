@@ -48,7 +48,7 @@ class BaseEventSpecs extends FunSuite {
           "field1":"item is sold"
         }""".stripMargin
 
-    val actual : TestHappenedEvent = new TestHappenedEvent().fromPayload(offset = EventOffsetAndHashValue(0, 10001), payload = payload,
+    val actual : TestHappenedEvent = new TestHappenedEvent().fromJSON(offset = EventOffsetAndHashValue(0, 10001), payload = payload,
       eventType = classOf[TestHappenedEvent]).asInstanceOf[TestHappenedEvent]
 
     assert(actual.eventHashValue == 10001)
@@ -65,7 +65,7 @@ class BaseEventSpecs extends FunSuite {
           "someObjects": []
         }""".stripMargin
 
-    val actual = new TestEventWithList().fromPayload(payload = payload, eventType = classOf[TestEventWithList])
+    val actual = new TestEventWithList().fromJSON(payload = payload, eventType = classOf[TestEventWithList])
       .asInstanceOf[TestEventWithList]
 
     assert(actual.eventHashValue == 0)
@@ -84,7 +84,7 @@ class BaseEventSpecs extends FunSuite {
           } ]
         }""".stripMargin
 
-    val actual = new TestEventWithList().fromPayload(payload = payload, eventType = classOf[TestEventWithList])
+    val actual = new TestEventWithList().fromJSON(payload = payload, eventType = classOf[TestEventWithList])
       .asInstanceOf[TestEventWithList]
 
     assert(actual.eventHashValue == 0)
@@ -108,7 +108,7 @@ class BaseEventSpecs extends FunSuite {
         }""".stripMargin
 
     val actual : TestEventWithList=
-      new TestEventWithList().fromPayload(payload = payload, eventType = classOf[TestEventWithList]).asInstanceOf[TestEventWithList]
+      new TestEventWithList().fromJSON(payload = payload, eventType = classOf[TestEventWithList]).asInstanceOf[TestEventWithList]
 
     assert(actual.eventHashValue == 0)
     assert(actual.eventType == classOf[TestEventWithList].getSimpleName)

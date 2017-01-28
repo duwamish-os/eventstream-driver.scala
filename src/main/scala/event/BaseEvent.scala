@@ -30,11 +30,11 @@ trait BaseEvent {
     stream.toString
   }
 
-  def fromPayload[E <: BaseEvent](payload: String, eventType: Class[E]): BaseEvent = {
-    fromPayload(EventOffsetAndHashValue(0, 0), payload, eventType)
+  def fromJSON[E <: BaseEvent](payload: String, eventType: Class[E]): BaseEvent = {
+    fromJSON(EventOffsetAndHashValue(0, 0), payload, eventType)
   }
 
-  def fromPayload[E <: BaseEvent](offset: EventOffsetAndHashValue, payload: String, eventType: Class[E]): BaseEvent = {
+  def fromJSON[E <: BaseEvent](offset: EventOffsetAndHashValue, payload: String, eventType: Class[E]): BaseEvent = {
     val mapper = new ObjectMapper() with ScalaObjectMapper
     mapper.registerModule(DefaultScalaModule)
 
