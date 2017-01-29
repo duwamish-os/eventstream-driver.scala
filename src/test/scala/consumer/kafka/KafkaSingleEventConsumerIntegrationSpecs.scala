@@ -39,13 +39,12 @@ class KafkaSingleEventConsumerIntegrationSpecs extends FunSuite with BeforeAndAf
     assert(persistedEvent.get().offset() == 0)
     assert(persistedEvent.get().checksum() != 0)
 
-    val kafkaConsumer = new AbstractKafkaSingleEventConsumer[TestHappenedConsumerEvent](List("someEventStream")) {
+    val kafkaConsumer = new KafkaEventConsumer[TestHappenedConsumerEvent](List("someEventStream")) {
       addConfiguration(new Properties() {{
         put("group.id", "consumers_testEventsGroup")
         put("client.id", "testKafkaEventConsumer")
         put("auto.offset.reset", "earliest")
-      }})
-        .subscribeEventsInStream(classOf[TestHappenedConsumerEvent])
+      }}).subscribeEventsInStream(classOf[TestHappenedConsumerEvent])
         .setEventHandler(new TestEventHandler)
 
       assert(getConfiguration.getProperty("group.id") == "consumers_testEventsGroup")
@@ -60,13 +59,12 @@ class KafkaSingleEventConsumerIntegrationSpecs extends FunSuite with BeforeAndAf
 
   test("given 2 events in the event-store, consumes events and updates the offset") {
 
-    val kafkaConsumer = new AbstractKafkaSingleEventConsumer[TestHappenedConsumerEvent](List("someEventStream")) {
+    val kafkaConsumer = new KafkaEventConsumer[TestHappenedConsumerEvent](List("someEventStream")) {
       addConfiguration(new Properties() {{
         put("group.id", "consumers_testEventsGroup")
         put("client.id", "testKafkaEventConsumer")
         put("auto.offset.reset", "latest")
-      }})
-        .subscribeEventsInStream(classOf[TestHappenedConsumerEvent])
+      }}).subscribeEventsInStream(classOf[TestHappenedConsumerEvent])
         .setEventHandler(new TestEventHandler)
 
       assert(getConfiguration.getProperty("group.id") == "consumers_testEventsGroup")

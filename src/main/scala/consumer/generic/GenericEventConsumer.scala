@@ -1,8 +1,9 @@
-package consumer
+package consumer.generic
 
 import java.util.Properties
 
 import consumer.factory.EventConsumerFactory
+import consumer.{EventHandler, SingleEventConsumer}
 import event.BaseEvent
 
 /**
@@ -10,7 +11,7 @@ import event.BaseEvent
   * on 1/23/17.
   */
 
-class GenericSingleEventConsumer[E <: BaseEvent](streams: List[String]) extends SingleEventConsumer[E]{
+class GenericEventConsumer[E <: BaseEvent](streams: List[String]) extends SingleEventConsumer[E]{
 
   val consumerFactory = new EventConsumerFactory[E]
 

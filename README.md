@@ -6,7 +6,13 @@ usage
 
 ```
 streaming {
-  driver = Kafka
+  producer {
+    driver= Kafka
+  }
+
+  consumer {
+    driver= Kafka
+  }
 }
 ```
 
@@ -91,4 +97,4 @@ ls -li ~/.ivy2/cache/nihilos/
 TODO
 ----
 
-add multi event types consumer
+add multi event types generic consumer

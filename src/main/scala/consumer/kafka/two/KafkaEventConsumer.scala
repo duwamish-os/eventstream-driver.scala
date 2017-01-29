@@ -1,4 +1,4 @@
-package consumer.kafka
+package consumer.kafka.two
 
 import java.util.Properties
 
@@ -7,7 +7,6 @@ import event.BaseEvent
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.TopicPartition
 import org.json.JSONObject
-import scala.reflect.runtime.universe._
 
 import scala.collection.JavaConversions._
 
@@ -24,7 +23,7 @@ trait TwoEventConsumer[E1 <: BaseEvent, E2 <: BaseEvent] extends EventConsumer {
   def subscribePartitions(partition: Int) : TwoEventConsumer[E1, E2]
 }
 
-abstract class KafkaTwoEventConsumer[E1 <: BaseEvent, E2 <: BaseEvent](streams: List[String]) extends TwoEventConsumer[E1, E2] {
+abstract class KafkaEventConsumer[E1 <: BaseEvent, E2 <: BaseEvent](streams: List[String]) extends TwoEventConsumer[E1, E2] {
 
   var eventTypePartition: Int = 0
   var subscribedEventType: List[Class[_ <: BaseEvent]] = _
@@ -43,12 +42,16 @@ abstract class KafkaTwoEventConsumer[E1 <: BaseEvent, E2 <: BaseEvent](streams: 
 
       val json = new JSONObject(eventRecord.value())
 
-      //FIXME write to errorStream on any exception, not finding eventType
+      //TODO retry x times
+      //TODO write to errorStream on any exception, not finding eventType
       val whatIsEventType : Class[_ <: BaseEvent] = Class.forName(json.getString("eventType"))
         .asSubclass(classOf[BaseEvent])
 
       val actualEventInStream = whatIsEventType.newInstance().fromJSON(eventRecord.value(), whatIsEventType)
 
+      //FIXME stupid way of solving matching the HEAD
+      //FIXME drain if other than Event1 or Event2, because stream can have lots of eventTypes,
+      //and for Event3, it will throw exception
       whatIsEventType.isAssignableFrom(subscribedEventType.head) match {
         case true => eventHandler.onEventA(actualEventInStream.asInstanceOf[E1])
         case false => eventHandler.onEventB(actualEventInStream.asInstanceOf[E2])

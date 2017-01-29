@@ -14,9 +14,9 @@ class EventPublisherFactory {
   val streamingConfig = ConfigFactory.load("streaming.conf")
 
   def create(stream: String) : EventPublisher = {
-    streamingConfig.getString("streaming.driver") match {
-      case "Kafka" => new KafkaEventPublisher(stream)
-      case _ => null
+    streamingConfig.getString("streaming.producer.driver") match {
+      case "Kafka" => new KafkaEventPublisher(stream) //FIXME has to be Class.forName so that does not need to redeploy
+      case _ => throw new Exception(s"${streamingConfig.getString("streaming.producer.driver")}, Driver not found.")
     }
   }
 }

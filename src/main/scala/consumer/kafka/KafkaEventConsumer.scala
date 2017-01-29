@@ -15,7 +15,7 @@ import scala.collection.JavaConversions._
   * on 1/15/17.
   */
 
-abstract class AbstractKafkaSingleEventConsumer[E <: BaseEvent](streams: List[String]) extends SingleEventConsumer[E] {
+abstract class KafkaEventConsumer[E <: BaseEvent](streams: List[String]) extends SingleEventConsumer[E] {
 
   var eventTypePartition: Int = 0
   var subscribedEventType: Class[E] = _
@@ -36,12 +36,8 @@ abstract class AbstractKafkaSingleEventConsumer[E <: BaseEvent](streams: List[St
     println(s"Events consumed at once = ${events.size}")
 
     for (eventRecord <- events) {
-
-      println("=================================== consumer offset ===============================|")
-      println(s"================================== $getConsumerPosition ==========================|")
-      println("=================================== consumer offset ===============================|")
-
-      val method: Method = subscribedEventType.getMethod("fromPayload", classOf[EventOffsetAndHashValue],
+      //FIXME check eventNamespace instead
+      val method: Method = subscribedEventType.getMethod("fromJSON", classOf[EventOffsetAndHashValue],
         classOf[String], subscribedEventType.getClass)
       val s = method.invoke(subscribedEventType.newInstance(),
         EventOffsetAndHashValue(eventRecord.offset(), eventRecord.checksum()), eventRecord.value(), subscribedEventType)

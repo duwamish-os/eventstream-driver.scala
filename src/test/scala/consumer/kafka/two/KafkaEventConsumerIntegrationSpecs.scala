@@ -1,4 +1,4 @@
-package consumer.kafka
+package consumer.kafka.two
 
 import java.util.{Date, Properties}
 
@@ -29,7 +29,7 @@ class TestTwoEventHandler extends TwoEventsHandler[Event1, Event2] {
   }
 }
 
-class KafkaTwoEventConsumerIntegrationSpecs extends FunSuite with BeforeAndAfterEach {
+class KafkaEventConsumerIntegrationSpecs extends FunSuite with BeforeAndAfterEach {
 
   implicit val streamingConfig = EmbeddedKafkaConfig(kafkaPort = 9092, zooKeeperPort = 2181)
 
@@ -50,7 +50,7 @@ class KafkaTwoEventConsumerIntegrationSpecs extends FunSuite with BeforeAndAfter
     assert(persistedEvent.get().offset() == 0)
     assert(persistedEvent.get().checksum() != 0)
 
-    val kafkaConsumer = new KafkaTwoEventConsumer[Event1, Event2](List("streamWithTwoEventTypes")) {
+    val kafkaConsumer = new KafkaEventConsumer[Event1, Event2](List("streamWithTwoEventTypes")) {
       addConfiguration(new Properties() {{
           put("group.id", "consumers_testEventsGroup")
           put("client.id", "testKafkaEventConsumer1")
@@ -81,7 +81,7 @@ class KafkaTwoEventConsumerIntegrationSpecs extends FunSuite with BeforeAndAfter
     assert(persistedEvent.get().offset() == 0)
     assert(persistedEvent.get().checksum() != 0)
 
-    val kafkaConsumer = new KafkaTwoEventConsumer[Event1, Event2](List("streamWithTwoEventTypes")) {
+    val kafkaConsumer = new KafkaEventConsumer[Event1, Event2](List("streamWithTwoEventTypes")) {
       addConfiguration(new Properties() {{
         put("group.id", "consumers_testEventsGroup")
         put("client.id", "testKafkaEventConsumer2")
@@ -101,7 +101,7 @@ class KafkaTwoEventConsumerIntegrationSpecs extends FunSuite with BeforeAndAfter
 
   test("given 2 events in the event-store, consumes events and updates the offset") {
 
-    val kafkaConsumer = new KafkaTwoEventConsumer[Event1, Event2](List("someEventStream")) {
+    val kafkaConsumer = new KafkaEventConsumer[Event1, Event2](List("someEventStream")) {
       addConfiguration(new Properties() {{
           put("group.id", "consumers_testEventsGroup")
           put("client.id", "testKafkaEventConsumer3")

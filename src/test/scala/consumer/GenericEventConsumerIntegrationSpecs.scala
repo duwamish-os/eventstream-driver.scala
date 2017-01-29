@@ -2,6 +2,7 @@ package consumer
 
 import java.util.Date
 
+import consumer.generic.GenericEventConsumer
 import consumer.kafka.TestHappenedEvent
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
@@ -18,7 +19,7 @@ class GenericEventConsumerIntegrationSpecs extends FunSuite with BeforeAndAfterE
 
   val eventProducer = new GenericEventPublisher("TestEventStream")
 
-  val genericEventConsumer = new GenericSingleEventConsumer[TestHappenedEvent](List("TestEventStream"))
+  val genericEventConsumer = new GenericEventConsumer[TestHappenedEvent](List("TestEventStream"))
     .addConfiguration("group.id", "some_consumer_group")
     .addConfiguration("client.id", "genericEventConsumerInstance")
     .addConfiguration("auto.offset.reset", "earliest")
