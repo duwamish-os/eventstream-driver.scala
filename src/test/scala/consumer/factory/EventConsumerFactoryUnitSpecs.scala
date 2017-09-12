@@ -3,6 +3,7 @@ package consumer.factory
 import java.util.Date
 
 import consumer.kafka.KafkaEventConsumer
+import consumer.kafka.two.{KafkaEventConsumer => KafkaEventConsumer2}
 import event.BaseEvent
 import org.scalatest.FunSuite
 
@@ -11,15 +12,26 @@ import org.scalatest.FunSuite
   * on 1/28/17.
   */
 
-case class Test(eventOffset: Long, eventHashValue: Long, eventType: String,
+case class TestEvent(eventOffset: Long, eventHashValue: Long, eventType: String,
+                createdDate: Date, field1: String) extends BaseEvent {
+  override def copyy(eventOffset: Long, eventHashValue: Long): BaseEvent = null
+}
+
+case class BestEvent(eventOffset: Long, eventHashValue: Long, eventType: String,
                 createdDate: Date, field1: String) extends BaseEvent {
   override def copyy(eventOffset: Long, eventHashValue: Long): BaseEvent = null
 }
 
 class EventConsumerFactoryUnitSpecs extends FunSuite {
-  test("when driver is Kafka, creates an instance Kafka consumer") {
-    val factory = new EventConsumerFactory[Test]
-    val consumer = factory.create(List("some stream"))
-    assert(consumer.isInstanceOf[KafkaEventConsumer[Test]])
+  test("when driver is Kafka, creates an instance Kafka consumer for one event") {
+    val factory = new EventConsumerFactory
+    val consumer = factory.create[TestEvent](List("some stream"))
+    assert(consumer.isInstanceOf[KafkaEventConsumer[TestEvent]])
+  }
+
+  test("when driver is Kafka, creates an instance Kafka consumer for two event types") {
+    val factory = new EventConsumerFactory
+    val consumer = factory.create[TestEvent, BestEvent](List("some stream"))
+    assert(consumer.isInstanceOf[KafkaEventConsumer2[TestEvent, BestEvent]])
   }
 }

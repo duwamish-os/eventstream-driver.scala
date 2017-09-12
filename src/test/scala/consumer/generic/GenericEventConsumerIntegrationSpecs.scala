@@ -1,8 +1,8 @@
-package consumer
+package consumer.generic
 
 import java.util.Date
 
-import consumer.generic.GenericEventConsumer
+import consumer.EventHandler
 import consumer.kafka.TestHappenedEvent
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
@@ -32,8 +32,8 @@ class GenericEventConsumerIntegrationSpecs extends FunSuite with BeforeAndAfterE
   override protected def afterEach(): Unit = EmbeddedKafka.stop()
 
   test("given events in the stream, consumes each event and updates the consumer_offset") {
-    val event = TestHappenedEvent(eventOffset=0, eventHashValue = 0, eventType = classOf[TestHappenedEvent].getSimpleName,
-      createdDate = new Date(2017, 10, 28), field1 = "value1")
+    val event = TestHappenedEvent(eventOffset=0, eventHashValue = 0,
+      eventType = classOf[TestHappenedEvent].getSimpleName, createdDate = new Date(2017, 10, 28), field1 = "value1")
 
     val persistedEvent = eventProducer.publish(event)
     assert(persistedEvent.eventOffset == 0)

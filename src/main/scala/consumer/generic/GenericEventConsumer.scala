@@ -13,17 +13,20 @@ import event.BaseEvent
 
 class GenericEventConsumer[E <: BaseEvent](streams: List[String]) extends SingleEventConsumer[E]{
 
-  val consumerFactory = new EventConsumerFactory[E]
+  val consumerFactory = new EventConsumerFactory
 
-  val consumer = consumerFactory.create(streams)
+  val consumer = consumerFactory.create[E](streams)
 
-  override def addConfiguration(key: String, value: String): SingleEventConsumer[E] = consumer.addConfiguration(key, value)
+  override def addConfiguration(key: String, value: String): SingleEventConsumer[E] =
+    consumer.addConfiguration(key, value)
 
   override def addConfiguration(properties: Properties): SingleEventConsumer[E] = consumer.addConfiguration(properties)
 
-  override def setEventHandler(eventHandler: EventHandler[E]): SingleEventConsumer[E] = consumer.setEventHandler(eventHandler)
+  override def setEventHandler(eventHandler: EventHandler[E]): SingleEventConsumer[E] =
+    consumer.setEventHandler(eventHandler)
 
-  override def subscribeEventsInStream(eventTypes: Class[E]): SingleEventConsumer[E] = consumer.subscribeEventsInStream(eventTypes)
+  override def subscribeEventsInStream(eventTypes: Class[E]): SingleEventConsumer[E] =
+    consumer.subscribeEventsInStream(eventTypes)
 
   override def subscribePartitions(partition: Int): SingleEventConsumer[E] = consumer.subscribePartitions(partition)
 
